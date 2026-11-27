@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markets Exchange</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --soft: #f9fafb;
+      --hover: #f3f4f6;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --green-soft: #dcfce7;
+      --red: #dc2626;
+      --red-soft: #fee2e2;
+      --dark-btn: #111827;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 14px; }
+    .app { max-width: 980px; margin: 0 auto; }
+
+    /* Top Header */
+    .topbar {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
+    }
+    .brand { font-size: 20px; font-weight: 800; color: var(--text); }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill-btn {
+      background: var(--soft); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .pill-btn:hover, .pill-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+    .muted-sm { font-size: 12px; color: var(--muted); }
+
+    /* Networks Drawer / Panel */
+    .networks-panel {
+      display: none; background: var(--soft); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px; margin-bottom: 14px;
+    }
+    .networks-panel.open { display: block; }
+    .net-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .net-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 6px; max-height: 180px; overflow-y: auto; }
+    .net-chip {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 8px; font-size: 12px; font-weight: 600; color: var(--text); text-align: left; cursor: pointer;
+    }
+    .net-chip:hover, .net-chip.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+
+    /* Highlights / Movers / Stock & Token Trending */
+    .highlights-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px; }
+    @media (min-width: 720px) { .highlights-grid { grid-template-columns: 1.4fr 1fr; } }
+    .box {
+      background: var(--soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
+    }
+    .box-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .h-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .mini-card {
+      min-width: 145px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px; cursor: pointer; flex-shrink: 0;
+    }
+    .mini-card:hover { border-color: #9ca3af; }
+    .mini-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; }
+    .mini-vol { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .mini-chg { font-size: 12px; font-weight: 700; margin-top: 4px; }
+    .spark { width: 100%; height: 28px; margin-top: 6px; display: block; }
+
+    .mini-list { display: flex; flex-direction: column; gap: 6px; }
+    .mini-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 8px 10px; font-size: 12px; cursor: pointer;
+    }
+    .mini-row:hover { background: var(--hover); }
+
+    /* Category Tabs */
+    .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
+    .tab-btn {
+      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
+      padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+
+    /* Search & Sort */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .search-input {
+      flex: 1; min-width: 180px; background: var(--soft); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 14px; font-size: 14px; color: var(--text); outline: none;
+    }
+    .sort-select {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px 12px; font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer;
+    }
+
+    /* Main Coin Rows (Strictly 24H VOL only, no Market Cap or Liquidity) */
+    .coin-rows { display: flex; flex-direction: column; }
+    .coin-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 10px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s;
+    }
+    .coin-row:hover { background: var(--hover); border-radius: 10px; }
+    .row-l { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .star-btn {
+      background: none; border: none; font-size: 16px; cursor: pointer; color: #9ca3af; padding: 2px 4px;
+    }
+    .star-btn.saved { color: #eab308; }
+    .idx-num { width: 22px; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
+    .coin-img {
+      width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
+      background: var(--soft); border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .coin-meta { min-width: 0; }
+    .coin-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .coin-h { font-size: 14px; font-weight: 700; color: var(--text); }
+    .coin-sym { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .badge-tag {
+      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 999px;
+      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
+    }
+    .vol-only { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 600; }
+    .row-r { text-align: right; flex-shrink: 0; }
+    .px { font-size: 14px; font-weight: 700; color: var(--text); }
+    .pct { font-size: 12px; font-weight: 700; margin-top: 3px; }
+    .up { color: var(--green); }
+    .dn { color: var(--red); }
+
+    /* Pager */
+    .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; gap: 8px; }
+    .btn {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn:hover:not(:disabled) { background: var(--hover); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Detail + Buy / Sell + Swap View */
+    .detail-screen { display: none; }
+    .detail-screen.open { display: block; }
+    .d-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
+    }
+    .d-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+    @media (min-width: 600px) { .d-stats { grid-template-columns: repeat(4, 1fr); } }
+    .stat-box { background: var(--soft); border: 1px solid var(--border); border-radius: 12px; padding: 11px; }
+    .stat-k { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .stat-v { font-size: 14px; font-weight: 800; margin-top: 4px; color: var(--text); }
+
+    .tf-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tf-btn {
+      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .tf-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+    .main-chart {
+      width: 100%; height: 220px; background: var(--soft);
+      border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; display: block;
+    }
+
+    .trade-panel {
+      background: var(--soft); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+    }
+    .trade-mode-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .mode-btn {
+      flex: 1; padding: 9px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface); font-size: 13px; font-weight: 800; cursor: pointer; color: var(--text);
+    }
+    .mode-btn.buy.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+    .mode-btn.sell.active { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+
+    .trade-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 560px) { .trade-grid { grid-template-columns: 1fr 1fr; } }
+    .field-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; display: block; }
+    .num-input {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 700; color: var(--text); outline: none;
+    }
+
+    .action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-buy {
+      background: var(--green); color: #ffffff; border: none; border-radius: 12px;
+      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
+    }
+    .btn-sell {
+      background: var(--red); color: #ffffff; border: none; border-radius: 12px;
+      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
+    }
+    .btn-swap {
+      background: var(--dark-btn); color: #ffffff; border: none; border-radius: 12px;
+      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
+    }
+    .order-msg { margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">Markets</div>
+      <div class="top-actions">
+        <button class="pill-btn" id="toggleNetworksBtn">Networks (34)</button>
+        <span class="muted-sm" id="topStatus">Loading...</span>
+      </div>
+    </div>
+
+    <!-- 34 Networks Selector -->
+    <div class="networks-panel" id="networksPanel">
+      <div class="net-head">
+        <span style="font-size:13px;font-weight:800;">All Networks (34)</span>
+        <button class="pill-btn" id="clearNetBtn">All 34</button>
+      </div>
+      <div class="net-grid" id="netGrid"></div>
+    </div>
+
+    <!-- Detail + Buy / Sell + Swap View -->
+    <div class="detail-screen" id="detailScreen">
+      <div class="d-head">
+        <div class="row-l">
+          <img class="coin-img" id="dImg" src="" alt="" />
+          <div>
+            <div class="coin-h" id="dTitle">Coin</div>
+            <div class="vol-only" id="dSub">Exchange • Pair</div>
+          </div>
+        </div>
+        <button class="btn" id="backBtn">← Back</button>
+      </div>
+
+      <div class="d-stats">
+        <div class="stat-box"><div class="stat-k">Price</div><div class="stat-v" id="dPrice">-</div></div>
+        <div class="stat-box"><div class="stat-k">24H Change</div><div class="stat-v" id="dChg">-</div></div>
+        <div class="stat-box"><div class="stat-k">24H VOL</div><div class="stat-v" id="dVol">-</div></div>
+        <div class="stat-box"><div class="stat-k">24H High / Low</div><div class="stat-v" id="dHiLo">-</div></div>
+      </div>
+
+      <div class="tf-row" id="tfRow">
+        <button class="tf-btn" data-tf="1h">1H</button>
+        <button class="tf-btn active" data-tf="24h">24H</button>
+        <button class="tf-btn" data-tf="7d">7D</button>
+        <button class="tf-btn" data-tf="30d">30D</button>
+        <button class="tf-btn" data-tf="1y">1Y</button>
+      </div>
+
+      <canvas class="main-chart" id="detailCanvas" width="940" height="220"></canvas>
+
+      <div class="trade-panel">
+        <div class="trade-mode-bar">
+          <button class="mode-btn buy active" id="modeBuyBtn">Buy</button>
+          <button class="mode-btn sell" id="modeSellBtn">Sell</button>
+        </div>
+
+        <div class="trade-grid">
+          <div>
+            <label class="field-label" for="tradeUsdInput">Amount (USD)</label>
+            <input class="num-input" id="tradeUsdInput" type="number" min="0" step="any" value="100" />
+          </div>
+          <div>
+            <label class="field-label" for="tradeQtyInput">Estimated Quantity</label>
+            <input class="num-input" id="tradeQtyInput" type="text" readonly value="0" />
+          </div>
+        </div>
+
+        <div class="action-btns">
+          <button class="btn-buy" id="execTradeBtn">Buy</button>
+          <button class="btn-swap" id="openSwapBtn">Swap</button>
+        </div>
+        <div class="order-msg" id="tradeFeedback"></div>
+      </div>
+    </div>
+
+    <!-- Main Market Screen -->
+    <div id="mainScreen">
+      <!-- Top Highlights: 10 Coins by 24H Volume + 5%/10%+ Movers + Stock & Token Trending -->
+      <div class="highlights-grid">
+        <div class="box">
+          <div class="box-title">
+            <span>Top 10 by 24H VOL & Movers (5% / 10%+)</span>
+            <span class="muted-sm">24H VOL</span>
+          </div>
+          <div class="h-scroll" id="topTenStrip"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-title">
+            <span>Stock & Token Trending</span>
+            <span class="muted-sm">Live</span>
+          </div>
+          <div class="mini-list" id="stockTokenTrending"></div>
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="tabs" id="tabBar">
+        <button class="tab-btn active" data-tab="all">All Coins (Trending)</button>
+        <button class="tab-btn" data-tab="native">Native</button>
+        <button class="tab-btn" data-tab="token">Token</button>
+        <button class="tab-btn" data-tab="stock">Stock</button>
+        <button class="tab-btn" data-tab="pnl">Profit & Loss</button>
+        <button class="tab-btn" data-tab="watchlist">Watchlist</button>
+      </div>
+
+      <!-- Search & Sort -->
+      <div class="filter-bar">
+        <input class="search-input" id="searchInput" type="text" placeholder="Search coin or symbol..." />
+        <select class="sort-select" id="sortSelect">
+          <option value="volume">24H VOL (High → Low)</option>
+          <option value="gainers">Top Gainers (5% / 10%+)</option>
+          <option value="losers">Top Losers</option>
+          <option value="price">Price</option>
+          <option value="symbol">A–Z</option>
+        </select>
+      </div>
+
+      <!-- Coin List -->
+      <div class="coin-rows" id="coinRows"></div>
+
+      <!-- Pagination -->
+      <div class="pager">
+        <button class="btn" id="prevPageBtn">Prev</button>
+        <span class="muted-sm" id="pageStatus">Page 1</span>
+        <button class="btn" id="nextPageBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "";
+    const SWAP_ROUTE = "#swap?token={SYMBOL}";
+
+    const NETWORKS_34 = [
+      "Ethereum", "BNB Smart Chain", "Polygon", "Arbitrum", "Optimism", "Base",
+      "Avalanche", "Solana", "Tron", "DimeX Chain", "Unichain", "Blast",
+      "Linea", "Scroll", "zkSync Era", "Mantle", "Cronos", "Fantom",
+      "Near", "Sui", "Aptos", "Ton", "Cosmos", "Polkadot",
+      "Celestia", "Sei", "Injective", "Berachain", "Sonic", "Ronin",
+      "Celo", "Moonbeam", "Kava", "Gnosis"
+    ];
+
+    const state = {
+      tab: "all",
+      network: "",
+      q: "",
+      sort: "volume",
+      page: 1,
+      limit: 20,
+      total: 0,
+      allCache: [],
+      selectedSymbol: null,
+      selectedPrice: 0,
+      tradeSide: "buy",
+      tf: "24h",
+      watchlist: JSON.parse(localStorage.getItem("dimex_wl") || "[]"),
+      trades: JSON.parse(localStorage.getItem("dimex_trades") || "[]")
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function saveLocal() {
+      localStorage.setItem("dimex_wl", JSON.stringify(state.watchlist));
+      localStorage.setItem("dimex_trades", JSON.stringify(state.trades));
+    }
+
+    function fmtVol(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n) || n <= 0) return "$0.00";
+      if (n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
+      if (n >= 1e6) return "$" + (n / 1e6).toFixed(2) + "M";
+      if (n >= 1e3) return "$" + (n / 1e3).toFixed(2) + "K";
+      return "$" + n.toFixed(2);
+    }
+
+    function fmtPrice(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "$0.00";
+      if (n >= 1) return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+      return "$" + n.toPrecision(5);
+    }
+
+    function classifyAsset(item) {
+      const metaType = String(item?.metadata?.asset_type || "").toUpperCase();
+      const sym = String(item?.symbol || "").toUpperCase();
+      const name = String(item?.name || "").toLowerCase();
+      if (metaType === "STOCK" || name.includes("stock") || sym.endsWith("X")) return "stock";
+      if (["BTC", "ETH", "BNB", "SOL", "ADA", "XRP", "AVAX", "DOT", "TRX", "DMXC"].includes(sym)) return "native";
+      return "token";
+    }
+
+    function itemMatchesNetwork(item, net) {
+      if (!net) return true;
+      const exList = JSON.stringify(item?.metadata?.exchanges || []).toLowerCase();
+      const chainStr = String(item?.metadata?.chain || item?.exchange || "").toLowerCase();
+      const key = net.toLowerCase().split(" ")[0];
+      return exList.includes(key) || chainStr.includes(key);
+    }
+
+    function renderNetworks() {
+      const grid = $("netGrid");
+      grid.innerHTML = NETWORKS_34.map((net) => {
+        const act = state.network === net ? "active" : "";
+        return `<button class="net-chip ${act}" data-net="${net}">${net}</button>`;
+      }).join("");
+      grid.querySelectorAll(".net-chip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.network = state.network === btn.dataset.net ? "" : btn.dataset.net;
+          state.page = 1;
+          renderNetworks();
+          applyView();
+        });
+      });
+    }
+
+    function drawMiniSpark(canvas, chg) {
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const slope = Math.max(-1, Math.min(1, chg / 15));
+      const pts = [0.5, 0.42, 0.58, 0.48, 0.5 + slope * 0.35];
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const x = (i / (pts.length - 1)) * (w - 4) + 2;
+        const y = h - (p * (h - 6) + 3);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = chg >= 0 ? "#16a34a" : "#dc2626";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function renderHighlights(items) {
+      const byVol = [...items].sort((a, b) => Number(b.quote_volume_24h ?? b.volume_24h ?? 0) - Number(a.quote_volume_24h ?? a.volume_24h ?? 0));
+      const top10 = byVol.slice(0, 10);
+
+      const strip = $("topTenStrip");
+      strip.innerHTML = top10.map((c) => {
+        const chg = Number(c.change_24h || 0);
+        const vol = c.quote_volume_24h ?? c.volume_24h ?? 0;
+        const cls = chg >= 0 ? "up" : "dn";
+        const moveBadge = Math.abs(chg) >= 10 ? "10%+" : Math.abs(chg) >= 5 ? "5%+" : "VOL";
+        return `
+          <div class="mini-card" data-sym="${c.symbol}">
+            <div class="mini-top">
+              <span>${c.symbol}</span>
+              <span class="badge-tag">${moveBadge}</span>
+            </div>
+            <div class="mini-vol">24H VOL: ${fmtVol(vol)}</div>
+            <div class="mini-chg ${cls}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</div>
+            <canvas class="spark" width="125" height="28" data-chg="${chg}"></canvas>
+          </div>
+        `;
+      }).join("");
+
+      strip.querySelectorAll(".mini-card").forEach((card) => {
+        card.addEventListener("click", () => openCoinDetail(card.dataset.sym));
+      });
+      strip.querySelectorAll(".spark").forEach((cv) => {
+        drawMiniSpark(cv, Number(cv.dataset.chg || 0));
+      });
+
+      const stockPick = items.find((i) => classifyAsset(i) === "stock") || top10[1] || top10[0];
+      const tokenPick = items.find((i) => classifyAsset(i) === "token") || top10[0];
+      const trendPick = [...items].sort((a, b) => Math.abs(Number(b.change_24h || 0)) - Math.abs(Number(a.change_24h || 0)))[0];
+
+      const picks = [
+        { label: "Stock Trending", item: stockPick },
+        { label: "Token Trending", item: tokenPick },
+        { label: "Top Mover", item: trendPick }
+      ].filter((x) => x.item);
+
+      const box = $("stockTokenTrending");
+      box.innerHTML = picks.map((p) => {
+        const chg = Number(p.item.change_24h || 0);
+        const cls = chg >= 0 ? "up" : "dn";
+        return `
+          <div class="mini-row" data-sym="${p.item.symbol}">
+            <span><b>${p.label}:</b> ${p.item.symbol} (${fmtVol(p.item.quote_volume_24h ?? p.item.volume_24h ?? 0)})</span>
+            <span class="${cls}" style="font-weight:700;">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</span>
+          </div>
+        `;
+      }).join("");
+
+      box.querySelectorAll(".mini-row").forEach((r) => {
+        r.addEventListener("click", () => openCoinDetail(r.dataset.sym));
+      });
+    }
+
+    async function fetchAllMarketData() {
+      $("topStatus").textContent = "Loading...";
+      const qs = new URLSearchParams({ page: 1, limit: 250, q: state.q, sort: state.sort });
+      try {
+        const res = await fetch(`${API_BASE}/api/crypto-market?${qs}`);
+        const data = await res.json();
+        state.allCache = data.items || [];
+        renderHighlights(state.allCache);
+        applyView();
+      } catch (e) {
+        $("topStatus").textContent = "API error";
+        $("coinRows").innerHTML = `<div class="muted-sm" style="padding:16px;">Could not load market data.</div>`;
+      }
+    }
+
+    function applyView() {
+      if (state.tab === "pnl") {
+        renderPnlTab();
+        return;
+      }
+
+      let filtered = state.allCache.filter((item) => {
+        const cat = classifyAsset(item);
+        if (state.tab === "native" && cat !== "native") return false;
+        if (state.tab === "token" && cat !== "token") return false;
+        if (state.tab === "stock" && cat !== "stock") return false;
+        if (state.tab === "watchlist" && !state.watchlist.includes(item.symbol)) return false;
+        if (!itemMatchesNetwork(item, state.network)) return false;
+        return true;
+      });
+
+      if (state.sort === "gainers") {
+        filtered.sort((a, b) => Number(b.change_24h || 0) - Number(a.change_24h || 0));
+      } else if (state.sort === "losers") {
+        filtered.sort((a, b) => Number(a.change_24h || 0) - Number(b.change_24h || 0));
+      } else if (state.sort === "price") {
+        filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      } else if (state.sort === "symbol") {
+        filtered.sort((a, b) => String(a.symbol).localeCompare(String(b.symbol)));
+      } else {
+        filtered.sort((a, b) => Number(b.quote_volume_24h ?? b.volume_24h ?? 0) - Number(a.quote_volume_24h ?? a.volume_24h ?? 0));
+      }
+
+      state.total = filtered.length;
+      const maxPage = Math.max(1, Math.ceil(state.total / state.limit));
+      if (state.page > maxPage) state.page = 1;
+      const start = (state.page - 1) * state.limit;
+      const pageItems = filtered.slice(start, start + state.limit);
+
+      renderMainRows(pageItems, start);
+      $("pageStatus").textContent = `Page ${state.page} / ${maxPage}`;
+      $("prevPageBtn").disabled = state.page <= 1;
+      $("nextPageBtn").disabled = state.page >= maxPage;
+      $("topStatus").textContent = `${state.total} coins${state.network ? " • " + state.network : ""}`;
+    }
+
+    function renderMainRows(items, offset) {
+      const wrap = $("coinRows");
+      if (!items.length) {
+        wrap.innerHTML = `<div class="muted-sm" style="padding:16px;">No coins in this view.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = items.map((c, i) => {
+        const chg = Number(c.change_24h || 0);
+        const cls = chg >= 0 ? "up" : "dn";
+        const sign = chg >= 0 ? "+" : "";
+        const vol = c.quote_volume_24h ?? c.volume_24h ?? 0;
+        const saved = state.watchlist.includes(c.symbol);
+        const tag = classifyAsset(c).toUpperCase();
+        const imgHtml = c.logo ? `<img class="coin-img" src="${c.logo}" alt="${c.symbol}" onerror="this.style.display='none'" />` : "";
+
+        return `
+          <div class="coin-row" data-sym="${c.symbol}">
+            <div class="row-l">
+              <button class="star-btn ${saved ? "saved" : ""}" data-star="${c.symbol}" title="Watchlist">★</button>
+              <span class="idx-num">${offset + i + 1}</span>
+              ${imgHtml}
+              <div class="coin-meta">
+                <div class="coin-name-row">
+                  <span class="coin-h">${c.name || c.symbol}</span>
+                  <span class="coin-sym">${c.symbol}</span>
+                  <span class="badge-tag">${tag}</span>
+                </div>
+                <div class="vol-only">24H VOL: ${fmtVol(vol)}</div>
+              </div>
+            </div>
+            <div class="row-r">
+              <div class="px">${fmtPrice(c.price)}</div>
+              <div class="pct ${cls}">${sign}${chg.toFixed(2)}%</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      wrap.querySelectorAll(".star-btn").forEach((b) => {
+        b.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const sym = b.dataset.star;
+          if (state.watchlist.includes(sym)) {
+            state.watchlist = state.watchlist.filter((x) => x !== sym);
+          } else {
+            state.watchlist.push(sym);
+          }
+          saveLocal();
+          applyView();
+        });
+      });
+
+      wrap.querySelectorAll(".coin-row").forEach((row) => {
+        row.addEventListener("click", () => openCoinDetail(row.dataset.sym));
+      });
+    }
+
+    function renderPnlTab() {
+      const wrap = $("coinRows");
+      $("pageStatus").textContent = "Profit & Loss";
+      $("prevPageBtn").disabled = true;
+      $("nextPageBtn").disabled = true;
+
+      if (!state.trades.length) {
+        wrap.innerHTML = `<div class="muted-sm" style="padding:16px;">No Buy/Sell positions yet. Click any coin and place a Buy or Sell order to track Profit & Loss.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = state.trades.map((t) => {
+        const live = state.allCache.find((x) => x.symbol === t.symbol);
+        const curPx = Number(live?.price ?? t.entryPrice);
+        const pnlPct = t.entryPrice > 0 ? ((curPx - t.entryPrice) / t.entryPrice) * 100 * (t.side === "buy" ? 1 : -1) : 0;
+        const pnlUsd = (t.usd * pnlPct) / 100;
+        const cls = pnlUsd >= 0 ? "up" : "dn";
+        return `
+          <div class="coin-row" data-sym="${t.symbol}">
+            <div class="row-l">
+              <div class="coin-meta">
+                <div class="coin-name-row">
+                  <span class="coin-h">${t.symbol}</span>
+                  <span class="badge-tag">${t.side.toUpperCase()}</span>
+                </div>
+                <div class="vol-only">Entry: ${fmtPrice(t.entryPrice)} • Now: ${fmtPrice(curPx)}</div>
+              </div>
+            </div>
+            <div class="row-r">
+              <div class="px ${cls}">${pnlUsd >= 0 ? "+" : ""}${fmtPrice(pnlUsd)}</div>
+              <div class="pct ${cls}">${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}%</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      wrap.querySelectorAll(".coin-row").forEach((r) => {
+        r.addEventListener("click", () => openCoinDetail(r.dataset.sym));
+      });
+    }
+
+    async function openCoinDetail(sym) {
+      state.selectedSymbol = sym;
+      state.tf = "24h";
+      $("mainScreen").style.display = "none";
+      $("detailScreen").classList.add("open");
+      $("dTitle").textContent = sym;
+      $("dPrice").textContent = "Loading...";
+      $("tradeFeedback").textContent = "";
+
+      $("tfRow").querySelectorAll(".tf-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tf === state.tf);
+      });
+
+      try {
+        const res = await fetch(`${API_BASE}/api/crypto-market/${encodeURIComponent(sym)}`);
+        const d = await res.json();
+        const px = Number(d.price || 0);
+        state.selectedPrice = px;
+        $("dImg").src = d.logo || "";
+        $("dTitle").textContent = `${d.name || d.symbol} (${d.symbol})`;
+        $("dSub").textContent = `${d.exchange || "Market"} ${d.pair ? "• " + d.pair : ""}`;
+        $("dPrice").textContent = fmtPrice(px);
+        const chg = Number(d.change_24h || 0);
+        $("dChg").textContent = `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`;
+        $("dChg").className = "stat-v " + (chg >= 0 ? "up" : "dn");
+        $("dVol").textContent = fmtVol(d.quote_volume_24h ?? d.volume_24h ?? 0);
+        $("dHiLo").textContent = `${fmtPrice(d.high_24h)} / ${fmtPrice(d.low_24h)}`;
+        updateEstQty();
+
+        $("openSwapBtn").onclick = () => {
+          window.location.href = SWAP_ROUTE.replace("{SYMBOL}", encodeURIComponent(d.symbol));
+        };
+      } catch (e) {
+        $("dPrice").textContent = "-";
+      }
+
+      fetchDetailHistory(sym, state.tf);
+    }
+
+    function updateEstQty() {
+      const usd = Number($("tradeUsdInput").value || 0);
+      const px = Number(state.selectedPrice || 0);
+      $("tradeQtyInput").value = px > 0 && usd > 0 ? (usd / px).toFixed(6) : "0";
+    }
+
+    function setTradeSide(side) {
+      state.tradeSide = side;
+      $("modeBuyBtn").classList.toggle("active", side === "buy");
+      $("modeSellBtn").classList.toggle("active", side === "sell");
+      $("execTradeBtn").textContent = side === "buy" ? "Buy" : "Sell";
+      $("execTradeBtn").className = side === "buy" ? "btn-buy" : "btn-sell";
+    }
+
+    async function fetchDetailHistory(sym, tf) {
+      try {
+        const res = await fetch(`${API_BASE}/api/crypto-market/${encodeURIComponent(sym)}/history?range=${encodeURIComponent(tf)}`);
+        const data = await res.json();
+        drawDetailChart(data.points || []);
+      } catch (e) {
+        drawDetailChart([]);
+      }
+    }
+
+    function drawDetailChart(points) {
+      const cv = $("detailCanvas");
+      const ctx = cv.getContext("2d");
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      const prices = points.map((p) => Number(p.priceUsd)).filter((n) => Number.isFinite(n));
+      if (prices.length < 2) {
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "14px sans-serif";
+        ctx.fillText("No history points available", 24, 112);
+        return;
+      }
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      const pad = 20;
+      const w = cv.width - pad * 2;
+      const h = cv.height - pad * 2;
+      ctx.beginPath();
+      prices.forEach((val, idx) => {
+        const x = pad + (idx / (prices.length - 1)) * w;
+        const y = pad + h - ((val - min) / (max - min || 1)) * h;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = "#16a34a";
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+
+    // Event Listeners
+    $("toggleNetworksBtn").addEventListener("click", () => {
+      $("networksPanel").classList.toggle("open");
+    });
+
+    $("clearNetBtn").addEventListener("click", () => {
+      state.network = "";
+      state.page = 1;
+      renderNetworks();
+      applyView();
+    });
+
+    $("backBtn").addEventListener("click", () => {
+      $("detailScreen").classList.remove("open");
+      $("mainScreen").style.display = "block";
+    });
+
+    $("tfRow").querySelectorAll(".tf-btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        $("tfRow").querySelectorAll(".tf-btn").forEach((x) => x.classList.remove("active"));
+        b.classList.add("active");
+        state.tf = b.dataset.tf;
+        if (state.selectedSymbol) fetchDetailHistory(state.selectedSymbol, state.tf);
+      });
+    });
+
+    $("modeBuyBtn").addEventListener("click", () => setTradeSide("buy"));
+    $("modeSellBtn").addEventListener("click", () => setTradeSide("sell"));
+    $("tradeUsdInput").addEventListener("input", updateEstQty);
+
+    $("execTradeBtn").addEventListener("click", () => {
+      const usd = Number($("tradeUsdInput").value || 0);
+      if (!state.selectedSymbol || usd <= 0) return;
+      state.trades.unshift({
+        symbol: state.selectedSymbol,
+        side: state.tradeSide,
+        usd,
+        entryPrice: state.selectedPrice || 1,
+        ts: Date.now()
+      });
+      saveLocal();
+      $("tradeFeedback").textContent = `${state.tradeSide.toUpperCase()} order recorded for ${state.selectedSymbol} ($${usd}) — check Profit & Loss tab.`;
+    });
+
+    $("tabBar").querySelectorAll(".tab-btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        $("tabBar").querySelectorAll(".tab-btn").forEach((x) => x.classList.remove("active"));
+        b.classList.add("active");
+        state.tab = b.dataset.tab;
+        state.page = 1;
+        applyView();
+      });
+    });
+
+    $("searchInput").addEventListener("input", (e) => {
+      state.q = e.target.value.trim();
+      state.page = 1;
+      fetchAllMarketData();
+    });
+
+    $("sortSelect").addEventListener("change", (e) => {
+      state.sort = e.target.value;
+      state.page = 1;
+      fetchAllMarketData();
+    });
+
+    $("prevPageBtn").addEventListener("click", () => {
+      if (state.page > 1) { state.page--; applyView(); }
+    });
+
+    $("nextPageBtn").addEventListener("click", () => {
+      state.page++;
+      applyView();
+    });
+
+    renderNetworks();
+    fetchAllMarketData();
+  </script>
+</body>
+</html>
