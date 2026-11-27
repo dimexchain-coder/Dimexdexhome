@@ -1,814 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Markets Exchange</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #ffffff;
-      --soft: #f9fafb;
-      --hover: #f3f4f6;
-      --border: #e5e7eb;
-      --text: #111827;
-      --muted: #6b7280;
-      --green: #16a34a;
-      --green-soft: #dcfce7;
-      --red: #dc2626;
-      --red-soft: #fee2e2;
-      --dark-btn: #111827;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 14px; }
-    .app { max-width: 980px; margin: 0 auto; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DimeX Exchange | Professional Trading</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/theme.css">
+<script src="js/theme.js"></script>
+<style>
+  :root {
+    --dx-bg: #0b0f17;
+    --dx-panel: #121826;
+    --dx-panel-2: #182032;
+    --dx-border: rgba(148, 163, 184, 0.16);
+    --dx-text: #f8fafc;
+    --dx-muted: #94a3b8;
+    --dx-gold: #f59e0b;
+    --dx-emerald: #10b981;
+    --dx-crimson: #ef4444;
+    --dx-blue: #38bdf8;
+  }
 
-    /* Top Header */
-    .topbar {
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-      gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
-    }
-    .brand { font-size: 20px; font-weight: 800; color: var(--text); }
-    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .pill-btn {
-      background: var(--soft); border: 1px solid var(--border); color: var(--text);
-      padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
-    }
-    .pill-btn:hover, .pill-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
-    .muted-sm { font-size: 12px; color: var(--muted); }
+  .dimex-market-shell {
+    background: var(--dx-panel);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 14px;
+    padding: 18px;
+  }
 
-    /* Networks Drawer / Panel */
-    .networks-panel {
-      display: none; background: var(--soft); border: 1px solid var(--border);
-      border-radius: 14px; padding: 12px; margin-bottom: 14px;
-    }
-    .networks-panel.open { display: block; }
-    .net-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .net-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 6px; max-height: 180px; overflow-y: auto; }
-    .net-chip {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-      padding: 6px 8px; font-size: 12px; font-weight: 600; color: var(--text); text-align: left; cursor: pointer;
-    }
-    .net-chip:hover, .net-chip.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+  .dimex-market-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
 
-    /* Highlights / Movers / Stock & Token Trending */
-    .highlights-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px; }
-    @media (min-width: 720px) { .highlights-grid { grid-template-columns: 1.4fr 1fr; } }
-    .box {
-      background: var(--soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
-    }
-    .box-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; justify-content: space-between; }
-    .h-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-    .mini-card {
-      min-width: 145px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 10px; cursor: pointer; flex-shrink: 0;
-    }
-    .mini-card:hover { border-color: #9ca3af; }
-    .mini-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; }
-    .mini-vol { font-size: 11px; color: var(--muted); margin-top: 4px; }
-    .mini-chg { font-size: 12px; font-weight: 700; margin-top: 4px; }
-    .spark { width: 100%; height: 28px; margin-top: 6px; display: block; }
+  .dimex-network-select {
+    background: var(--dx-panel-2);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
 
-    .mini-list { display: flex; flex-direction: column; gap: 6px; }
-    .mini-row {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-      padding: 8px 10px; font-size: 12px; cursor: pointer;
-    }
-    .mini-row:hover { background: var(--hover); }
+  .dimex-tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 
-    /* Category Tabs */
-    .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
-    .tab-btn {
-      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
-      padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
-    }
-    .tab-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+  .dimex-tab-btn {
+    background: var(--dx-panel-2);
+    color: var(--dx-muted);
+    border: 1px solid var(--dx-border);
+    border-radius: 8px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
 
-    /* Search & Sort */
-    .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .search-input {
-      flex: 1; min-width: 180px; background: var(--soft); border: 1px solid var(--border);
-      border-radius: 12px; padding: 10px 14px; font-size: 14px; color: var(--text); outline: none;
-    }
-    .sort-select {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 10px 12px; font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer;
-    }
+  .dimex-tab-btn.active,
+  .dimex-tab-btn:hover {
+    background: var(--dx-gold);
+    color: #0b0f17;
+    border-color: var(--dx-gold);
+  }
 
-    /* Main Coin Rows (Strictly 24H VOL only, no Market Cap or Liquidity) */
-    .coin-rows { display: flex; flex-direction: column; }
-    .coin-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 10px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s;
-    }
-    .coin-row:hover { background: var(--hover); border-radius: 10px; }
-    .row-l { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .star-btn {
-      background: none; border: none; font-size: 16px; cursor: pointer; color: #9ca3af; padding: 2px 4px;
-    }
-    .star-btn.saved { color: #eab308; }
-    .idx-num { width: 22px; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
-    .coin-img {
-      width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
-      background: var(--soft); border: 1px solid var(--border); flex-shrink: 0;
-    }
-    .coin-meta { min-width: 0; }
-    .coin-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .coin-h { font-size: 14px; font-weight: 700; color: var(--text); }
-    .coin-sym { font-size: 11px; font-weight: 700; color: var(--muted); }
-    .badge-tag {
-      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 999px;
-      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
-    }
-    .vol-only { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 600; }
-    .row-r { text-align: right; flex-shrink: 0; }
-    .px { font-size: 14px; font-weight: 700; color: var(--text); }
-    .pct { font-size: 12px; font-weight: 700; margin-top: 3px; }
-    .up { color: var(--green); }
-    .dn { color: var(--red); }
+  .dimex-search-input {
+    width: 100%;
+    background: var(--dx-panel-2);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
 
-    /* Pager */
-    .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; gap: 8px; }
-    .btn {
-      background: var(--surface); border: 1px solid var(--border); color: var(--text);
-      border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
-    }
-    .btn:hover:not(:disabled) { background: var(--hover); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .dimex-list-head,
+  .dimex-market-row {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+  }
 
-    /* Detail + Buy / Sell + Swap View */
-    .detail-screen { display: none; }
-    .detail-screen.open { display: block; }
-    .d-head {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
-    }
-    .d-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
-    @media (min-width: 600px) { .d-stats { grid-template-columns: repeat(4, 1fr); } }
-    .stat-box { background: var(--soft); border: 1px solid var(--border); border-radius: 12px; padding: 11px; }
-    .stat-k { font-size: 11px; color: var(--muted); font-weight: 700; }
-    .stat-v { font-size: 14px; font-weight: 800; margin-top: 4px; color: var(--text); }
+  .dimex-list-head {
+    color: var(--dx-muted);
+    font-size: 12px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--dx-border);
+  }
 
-    .tf-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-    .tf-btn {
-      background: var(--soft); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
-    }
-    .tf-btn.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
-    .main-chart {
-      width: 100%; height: 220px; background: var(--soft);
-      border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; display: block;
-    }
+  .dimex-market-row {
+    border-bottom: 1px solid var(--dx-border);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
 
-    .trade-panel {
-      background: var(--soft); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
-    }
-    .trade-mode-bar { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mode-btn {
-      flex: 1; padding: 9px; border-radius: 10px; border: 1px solid var(--border);
-      background: var(--surface); font-size: 13px; font-weight: 800; cursor: pointer; color: var(--text);
-    }
-    .mode-btn.buy.active { background: var(--green-soft); border-color: var(--green); color: var(--green); }
-    .mode-btn.sell.active { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+  .dimex-market-row:hover {
+    background: var(--dx-panel-2);
+  }
 
-    .trade-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
-    @media (min-width: 560px) { .trade-grid { grid-template-columns: 1fr 1fr; } }
-    .field-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; display: block; }
-    .num-input {
-      width: 100%; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 700; color: var(--text); outline: none;
-    }
+  .dimex-coin-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
 
-    .action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-buy {
-      background: var(--green); color: #ffffff; border: none; border-radius: 12px;
-      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
+  .dimex-star-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 17px;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+
+  .dimex-star-btn.saved {
+    color: var(--dx-gold);
+  }
+
+  .dimex-chg-up { color: var(--dx-emerald); font-weight: 600; }
+  .dimex-chg-down { color: var(--dx-crimson); font-weight: 600; }
+  .dimex-chg-flat { color: var(--dx-muted); font-weight: 600; }
+
+  .dimex-pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .dimex-pager button {
+    background: var(--dx-panel-2);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+
+  .dimex-pager button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .dimex-list-head { display: none; }
+    .dimex-market-row {
+      grid-template-columns: 1.6fr 1fr 1fr;
     }
-    .btn-sell {
-      background: var(--red); color: #ffffff; border: none; border-radius: 12px;
-      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
-    }
-    .btn-swap {
-      background: var(--dark-btn); color: #ffffff; border: none; border-radius: 12px;
-      padding: 11px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
-    }
-    .order-msg { margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--green); }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="brand">Markets</div>
-      <div class="top-actions">
-        <button class="pill-btn" id="toggleNetworksBtn">Networks (34)</button>
-        <span class="muted-sm" id="topStatus">Loading...</span>
-      </div>
+
+<header class="topbar">
+  <a class="logo" href="/" aria-label="DimeX Exchange Home"><img src="https://www.dimex.site/assets/dimex-token-logo-navy.svg" alt="DimeX Logo"></a>
+  <nav>
+    <a href="#trading"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></svg>Markets</a>
+    <a href="#trading"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h17M8 15V9h3v6zm6 0V5h3v10z"/></svg>Trade</a>
+    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="M20 7H5a3 3 0 0 0 0 6h15M4 7V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/></svg>Swap</a>
+    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="M12 3v18m-6-5 6 5 6-5M6 8l6-5 6 5"/></svg>Earn</a>
+    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="m12 2 2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/></svg>Launchpad</a>
+  </nav>
+  <button class="theme-toggle" type="button"><span class="theme-icon">☾</span><span class="theme-label">Dark mode</span></button>
+  <button class="wallet-btn"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18m-5 5h2"/></svg>Connect Wallet</button>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="hero-tag">THE NEXT GENERATION HYBRID EXCHANGE</span>
+    <h1>Trade Beyond<br><span>Boundaries.</span></h1>
+    <p>One platform. Multiple blockchains. Unlimited trading possibilities.</p>
+    <div class="hero-actions">
+      <a href="#trading" class="hero-primary">Explore Markets</a>
+      <a href="wallet.html" class="hero-secondary">My Wallet</a>
     </div>
-
-    <!-- 34 Networks Selector -->
-    <div class="networks-panel" id="networksPanel">
-      <div class="net-head">
-        <span style="font-size:13px;font-weight:800;">All Networks (34)</span>
-        <button class="pill-btn" id="clearNetBtn">All 34</button>
-      </div>
-      <div class="net-grid" id="netGrid"></div>
-    </div>
-
-    <!-- Detail + Buy / Sell + Swap View -->
-    <div class="detail-screen" id="detailScreen">
-      <div class="d-head">
-        <div class="row-l">
-          <img class="coin-img" id="dImg" src="" alt="" />
-          <div>
-            <div class="coin-h" id="dTitle">Coin</div>
-            <div class="vol-only" id="dSub">Exchange • Pair</div>
-          </div>
-        </div>
-        <button class="btn" id="backBtn">← Back</button>
-      </div>
-
-      <div class="d-stats">
-        <div class="stat-box"><div class="stat-k">Price</div><div class="stat-v" id="dPrice">-</div></div>
-        <div class="stat-box"><div class="stat-k">24H Change</div><div class="stat-v" id="dChg">-</div></div>
-        <div class="stat-box"><div class="stat-k">24H VOL</div><div class="stat-v" id="dVol">-</div></div>
-        <div class="stat-box"><div class="stat-k">24H High / Low</div><div class="stat-v" id="dHiLo">-</div></div>
-      </div>
-
-      <div class="tf-row" id="tfRow">
-        <button class="tf-btn" data-tf="1h">1H</button>
-        <button class="tf-btn active" data-tf="24h">24H</button>
-        <button class="tf-btn" data-tf="7d">7D</button>
-        <button class="tf-btn" data-tf="30d">30D</button>
-        <button class="tf-btn" data-tf="1y">1Y</button>
-      </div>
-
-      <canvas class="main-chart" id="detailCanvas" width="940" height="220"></canvas>
-
-      <div class="trade-panel">
-        <div class="trade-mode-bar">
-          <button class="mode-btn buy active" id="modeBuyBtn">Buy</button>
-          <button class="mode-btn sell" id="modeSellBtn">Sell</button>
-        </div>
-
-        <div class="trade-grid">
-          <div>
-            <label class="field-label" for="tradeUsdInput">Amount (USD)</label>
-            <input class="num-input" id="tradeUsdInput" type="number" min="0" step="any" value="100" />
-          </div>
-          <div>
-            <label class="field-label" for="tradeQtyInput">Estimated Quantity</label>
-            <input class="num-input" id="tradeQtyInput" type="text" readonly value="0" />
-          </div>
-        </div>
-
-        <div class="action-btns">
-          <button class="btn-buy" id="execTradeBtn">Buy</button>
-          <button class="btn-swap" id="openSwapBtn">Swap</button>
-        </div>
-        <div class="order-msg" id="tradeFeedback"></div>
-      </div>
-    </div>
-
-    <!-- Main Market Screen -->
-    <div id="mainScreen">
-      <!-- Top Highlights: 10 Coins by 24H Volume + 5%/10%+ Movers + Stock & Token Trending -->
-      <div class="highlights-grid">
-        <div class="box">
-          <div class="box-title">
-            <span>Top 10 by 24H VOL & Movers (5% / 10%+)</span>
-            <span class="muted-sm">24H VOL</span>
-          </div>
-          <div class="h-scroll" id="topTenStrip"></div>
-        </div>
-
-        <div class="box">
-          <div class="box-title">
-            <span>Stock & Token Trending</span>
-            <span class="muted-sm">Live</span>
-          </div>
-          <div class="mini-list" id="stockTokenTrending"></div>
-        </div>
-      </div>
-
-      <!-- Category Tabs -->
-      <div class="tabs" id="tabBar">
-        <button class="tab-btn active" data-tab="all">All Coins (Trending)</button>
-        <button class="tab-btn" data-tab="native">Native</button>
-        <button class="tab-btn" data-tab="token">Token</button>
-        <button class="tab-btn" data-tab="stock">Stock</button>
-        <button class="tab-btn" data-tab="pnl">Profit & Loss</button>
-        <button class="tab-btn" data-tab="watchlist">Watchlist</button>
-      </div>
-
-      <!-- Search & Sort -->
-      <div class="filter-bar">
-        <input class="search-input" id="searchInput" type="text" placeholder="Search coin or symbol..." />
-        <select class="sort-select" id="sortSelect">
-          <option value="volume">24H VOL (High → Low)</option>
-          <option value="gainers">Top Gainers (5% / 10%+)</option>
-          <option value="losers">Top Losers</option>
-          <option value="price">Price</option>
-          <option value="symbol">A–Z</option>
-        </select>
-      </div>
-
-      <!-- Coin List -->
-      <div class="coin-rows" id="coinRows"></div>
-
-      <!-- Pagination -->
-      <div class="pager">
-        <button class="btn" id="prevPageBtn">Prev</button>
-        <span class="muted-sm" id="pageStatus">Page 1</span>
-        <button class="btn" id="nextPageBtn">Next</button>
-      </div>
+    <div class="hero-stats">
+      <div><strong>50+</strong><small>Coin Groups Planned</small></div>
+      <div><strong>Multi-chain</strong><small>Hybrid Ecosystem</small></div>
+      <div><strong>24/7</strong><small>Trading Platform</small></div>
     </div>
   </div>
+  <div class="hero-visual">
+    <div class="orbit orbit-one"></div>
+    <div class="orbit orbit-two"></div>
+    <div class="hero-coin">D<span>X</span></div>
+    <div class="float-card float-btc"><b>₿</b><span>BITCOIN</span><strong>BTC</strong></div>
+    <div class="float-card float-eth"><b>◆</b><span>ETHEREUM</span><strong>ETH</strong></div>
+    <div class="float-card float-dmx"><b>DX</b><span>DIMEX CHAIN</span><strong>DMXC</strong></div>
+  </div>
+</section>
 
-  <script>
-    const API_BASE = "";
-    const SWAP_ROUTE = "#swap?token={SYMBOL}";
+<section class="market-strip">
+  <div>BTC/USDT <b>$--</b></div>
+  <div>ETH/USDT <b>$--</b></div>
+  <div>BNB/USDT <b>$--</b></div>
+  <div>DMXC/USDT <b>$--</b></div>
+</section>
 
-    const NETWORKS_34 = [
-      "Ethereum", "BNB Smart Chain", "Polygon", "Arbitrum", "Optimism", "Base",
-      "Avalanche", "Solana", "Tron", "DimeX Chain", "Unichain", "Blast",
-      "Linea", "Scroll", "zkSync Era", "Mantle", "Cronos", "Fantom",
-      "Near", "Sui", "Aptos", "Ton", "Cosmos", "Polkadot",
-      "Celestia", "Sei", "Injective", "Berachain", "Sonic", "Ronin",
-      "Celo", "Moonbeam", "Kava", "Gnosis"
-    ];
+<main class="dashboard" id="trading">
+  <section class="panel market-watch dimex-market-shell" id="dimex-markets">
+    <div class="dimex-market-top">
+      <div>
+        <h2>Market Watch</h2>
+        <p>Separate pipes for Native Coins, Tokens, and Stocks · Unified 75-item pagination</p>
+      </div>
+      <label class="network-label">Network
+        <select id="market-network" class="dimex-network-select">
+          <option value="" selected>All Networks</option>
+          <option value="bnb">BNB Chain</option>
+          <option value="ethereum">Ethereum</option>
+          <option value="polygon">Polygon</option>
+          <option value="arbitrum">Arbitrum</option>
+          <option value="optimism">Optimism</option>
+          <option value="solana">Solana</option>
+          <option value="tron">TRON</option>
+          <option value="avalanche">Avalanche</option>
+        </select>
+      </label>
+    </div>
 
-    const state = {
-      tab: "all",
-      network: "",
-      q: "",
-      sort: "volume",
-      page: 1,
-      limit: 20,
-      total: 0,
-      allCache: [],
-      selectedSymbol: null,
-      selectedPrice: 0,
-      tradeSide: "buy",
-      tf: "24h",
-      watchlist: JSON.parse(localStorage.getItem("dimex_wl") || "[]"),
-      trades: JSON.parse(localStorage.getItem("dimex_trades") || "[]")
+    <div class="dimex-tab-bar" id="market-tabs">
+      <button type="button" class="dimex-tab-btn active" data-market-tab="trending">Trending</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="native">Native Coins</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="tokens">Tokens</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="stocks">Stocks</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="profit-loss">Profit &amp; Loss</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="stablecoins">Stablecoins</button>
+      <button type="button" class="dimex-tab-btn" data-market-tab="watchlist">☆ Watchlist</button>
+    </div>
+
+    <input id="market-search" class="dimex-search-input" type="search" placeholder="Search coin name, symbol or contract address">
+
+    <div class="market-table-wrap">
+      <div class="dimex-list-head">
+        <span>☆ / Coin</span>
+        <span>Price</span>
+        <span>24H Change</span>
+        <span>24H Volume</span>
+        <span>Network / Type</span>
+      </div>
+      <div id="market-list">Loading markets...</div>
+    </div>
+
+    <div id="market-pagination" class="dimex-pager"></div>
+    <p class="market-data-note" id="market-data-note"></p>
+  </section>
+
+  <section class="panel chart-panel">
+    <h3>BTC / USDT <span class="green">Spot Market</span></h3>
+    <div class="chart-placeholder">
+      <div>DIMEX TRADING CHART</div>
+      <small>Live market chart will connect to DimeX Price Engine</small>
+    </div>
+  </section>
+
+  <section class="panel orderbook">
+    <h3>Order Book</h3>
+    <div class="table-head"><span>Price (USDT)</span><span>Amount</span></div>
+    <div class="empty-state">Waiting for live orders...</div>
+  </section>
+
+  <section class="panel trade-panel">
+    <h3>Spot Trading</h3>
+    <div class="trade-tabs"><button>Buy</button><button>Sell</button></div>
+    <label>Price</label>
+    <input placeholder="Market price" disabled>
+    <label>Amount</label>
+    <input type="number" placeholder="0.00">
+    <button class="buy-btn" disabled>Trading Engine Not Connected</button>
+    <small>Trading will activate after blockchain integration and testing.</small>
+  </section>
+
+  <section class="panel assets-panel">
+    <h3>My Assets</h3>
+    <p>Connect your wallet to view assets.</p>
+  </section>
+</main>
+
+<footer>DimeX Exchange · Independent Trading Platform</footer>
+
+<script src="js/appkit-globals.js"></script>
+<script src="js/wallet.js"></script>
+<script>
+(() => {
+  const PAGE_SIZE = 75;
+  const WATCHLIST_KEY = "dimex_market_watchlist_v1";
+  const PREVIEW_KEY = "dimex_selected_coin_preview_v1";
+  const STABLE_SYMBOLS = new Set(["USDT", "USDC", "DAI", "BUSD", "FDUSD", "TUSD", "USDE", "PYUSD", "FRAX", "LUSD"]);
+
+  const API_PIPES = {
+    native: "/api/crypto-market",
+    token: "/api/token-market",
+    stock: "/api/stock-market"
+  };
+
+  const state = {
+    tab: "trending",
+    network: "",
+    query: "",
+    page: 1,
+    allItems: []
+  };
+
+  const $ = id => document.getElementById(id);
+
+  function esc(v) {
+    return String(v ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function num(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function fmtPrice(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n) || n <= 0) return "$0.00";
+    if (n >= 1) return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  }
+
+  function fmtVol(v) {
+    const n = num(v);
+    if (n <= 0) return "$0.00";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 2
+    }).format(n);
+  }
+
+  function normalizeRow(raw, kind) {
+    const sym = String(raw.symbol || "").toUpperCase();
+    const id = String(
+      kind === "native"
+        ? (raw.coinId || raw.id || raw.symbol || "")
+        : kind === "stock"
+          ? (raw.id || raw.symbol || "")
+          : (raw.address || raw.contract || raw.id || raw.symbol || "")
+    );
+    const net = String(
+      raw.network || raw.networkName || raw.chain || raw.exchange ||
+      (kind === "native" ? "Native" : kind === "stock" ? "Stock" : "Token")
+    );
+    return {
+      kind,
+      id,
+      symbol: sym,
+      name: String(raw.name || sym || "Asset"),
+      logo: String(raw.logo || raw.image || ""),
+      price: num(raw.price ?? raw.priceUsd),
+      chg: num(raw.chg ?? raw.change_24h ?? raw.price_change_percentage_24h ?? raw.priceChange24h),
+      vol: num(raw.vol ?? raw.quote_volume_24h ?? raw.volume_24h ?? raw.volume24h),
+      network: net,
+      address: String(raw.address || raw.contract || "")
     };
+  }
 
-    const $ = (id) => document.getElementById(id);
+  async function fetchPipe(kind) {
+    const baseUrl = API_PIPES[kind];
+    const res = await fetch(`${baseUrl}?page=1&limit=500`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : (data.items || data.tokens || data.coins || data.stocks || data.data || []);
+    return list.map(row => normalizeRow(row, kind));
+  }
 
-    function saveLocal() {
-      localStorage.setItem("dimex_wl", JSON.stringify(state.watchlist));
-      localStorage.setItem("dimex_trades", JSON.stringify(state.trades));
+  // Separate Pipe Functions
+  async function loadNativeCoins() { return fetchPipe("native"); }
+  async function loadTokens() { return fetchPipe("token"); }
+  async function loadStocks() { return fetchPipe("stock"); }
+
+  async function loadTrending() {
+    const [natives, tokens, stocks] = await Promise.all([
+      loadNativeCoins(),
+      loadTokens(),
+      loadStocks()
+    ]);
+    return [...natives, ...tokens, ...stocks].sort((a, b) => b.vol - a.vol);
+  }
+
+  async function loadProfitLoss() {
+    const [natives, tokens, stocks] = await Promise.all([
+      loadNativeCoins(),
+      loadTokens(),
+      loadStocks()
+    ]);
+    return [...natives, ...tokens, ...stocks].sort((a, b) => b.chg - a.chg);
+  }
+
+  async function loadStablecoins() {
+    const [natives, tokens] = await Promise.all([loadNativeCoins(), loadTokens()]);
+    return [...natives, ...tokens].filter(it => STABLE_SYMBOLS.has(it.symbol));
+  }
+
+  function getWatchlistSet() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || "[]");
+      return new Set(Array.isArray(arr) ? arr.map(x => String(x).toLowerCase()) : []);
+    } catch (_) {
+      return new Set();
     }
+  }
 
-    function fmtVol(v) {
-      const n = Number(v);
-      if (!Number.isFinite(n) || n <= 0) return "$0.00";
-      if (n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
-      if (n >= 1e6) return "$" + (n / 1e6).toFixed(2) + "M";
-      if (n >= 1e3) return "$" + (n / 1e3).toFixed(2) + "K";
-      return "$" + n.toFixed(2);
-    }
+  function toggleWatchlist(key) {
+    const set = getWatchlistSet();
+    const lower = String(key).toLowerCase();
+    if (set.has(lower)) set.delete(lower);
+    else set.add(lower);
+    localStorage.setItem(WATCHLIST_KEY, JSON.stringify([...set]));
+    runMarketPipeline();
+  }
 
-    function fmtPrice(v) {
-      const n = Number(v);
-      if (!Number.isFinite(n)) return "$0.00";
-      if (n >= 1) return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-      return "$" + n.toPrecision(5);
-    }
-
-    function classifyAsset(item) {
-      const metaType = String(item?.metadata?.asset_type || "").toUpperCase();
-      const sym = String(item?.symbol || "").toUpperCase();
-      const name = String(item?.name || "").toLowerCase();
-      if (metaType === "STOCK" || name.includes("stock") || sym.endsWith("X")) return "stock";
-      if (["BTC", "ETH", "BNB", "SOL", "ADA", "XRP", "AVAX", "DOT", "TRX", "DMXC"].includes(sym)) return "native";
-      return "token";
-    }
-
-    function itemMatchesNetwork(item, net) {
-      if (!net) return true;
-      const exList = JSON.stringify(item?.metadata?.exchanges || []).toLowerCase();
-      const chainStr = String(item?.metadata?.chain || item?.exchange || "").toLowerCase();
-      const key = net.toLowerCase().split(" ")[0];
-      return exList.includes(key) || chainStr.includes(key);
-    }
-
-    function renderNetworks() {
-      const grid = $("netGrid");
-      grid.innerHTML = NETWORKS_34.map((net) => {
-        const act = state.network === net ? "active" : "";
-        return `<button class="net-chip ${act}" data-net="${net}">${net}</button>`;
-      }).join("");
-      grid.querySelectorAll(".net-chip").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          state.network = state.network === btn.dataset.net ? "" : btn.dataset.net;
-          state.page = 1;
-          renderNetworks();
-          applyView();
-        });
-      });
-    }
-
-    function drawMiniSpark(canvas, chg) {
-      const ctx = canvas.getContext("2d");
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      const slope = Math.max(-1, Math.min(1, chg / 15));
-      const pts = [0.5, 0.42, 0.58, 0.48, 0.5 + slope * 0.35];
-      ctx.beginPath();
-      pts.forEach((p, i) => {
-        const x = (i / (pts.length - 1)) * (w - 4) + 2;
-        const y = h - (p * (h - 6) + 3);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.strokeStyle = chg >= 0 ? "#16a34a" : "#dc2626";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    function renderHighlights(items) {
-      const byVol = [...items].sort((a, b) => Number(b.quote_volume_24h ?? b.volume_24h ?? 0) - Number(a.quote_volume_24h ?? a.volume_24h ?? 0));
-      const top10 = byVol.slice(0, 10);
-
-      const strip = $("topTenStrip");
-      strip.innerHTML = top10.map((c) => {
-        const chg = Number(c.change_24h || 0);
-        const vol = c.quote_volume_24h ?? c.volume_24h ?? 0;
-        const cls = chg >= 0 ? "up" : "dn";
-        const moveBadge = Math.abs(chg) >= 10 ? "10%+" : Math.abs(chg) >= 5 ? "5%+" : "VOL";
-        return `
-          <div class="mini-card" data-sym="${c.symbol}">
-            <div class="mini-top">
-              <span>${c.symbol}</span>
-              <span class="badge-tag">${moveBadge}</span>
-            </div>
-            <div class="mini-vol">24H VOL: ${fmtVol(vol)}</div>
-            <div class="mini-chg ${cls}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</div>
-            <canvas class="spark" width="125" height="28" data-chg="${chg}"></canvas>
-          </div>
-        `;
-      }).join("");
-
-      strip.querySelectorAll(".mini-card").forEach((card) => {
-        card.addEventListener("click", () => openCoinDetail(card.dataset.sym));
-      });
-      strip.querySelectorAll(".spark").forEach((cv) => {
-        drawMiniSpark(cv, Number(cv.dataset.chg || 0));
-      });
-
-      const stockPick = items.find((i) => classifyAsset(i) === "stock") || top10[1] || top10[0];
-      const tokenPick = items.find((i) => classifyAsset(i) === "token") || top10[0];
-      const trendPick = [...items].sort((a, b) => Math.abs(Number(b.change_24h || 0)) - Math.abs(Number(a.change_24h || 0)))[0];
-
-      const picks = [
-        { label: "Stock Trending", item: stockPick },
-        { label: "Token Trending", item: tokenPick },
-        { label: "Top Mover", item: trendPick }
-      ].filter((x) => x.item);
-
-      const box = $("stockTokenTrending");
-      box.innerHTML = picks.map((p) => {
-        const chg = Number(p.item.change_24h || 0);
-        const cls = chg >= 0 ? "up" : "dn";
-        return `
-          <div class="mini-row" data-sym="${p.item.symbol}">
-            <span><b>${p.label}:</b> ${p.item.symbol} (${fmtVol(p.item.quote_volume_24h ?? p.item.volume_24h ?? 0)})</span>
-            <span class="${cls}" style="font-weight:700;">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</span>
-          </div>
-        `;
-      }).join("");
-
-      box.querySelectorAll(".mini-row").forEach((r) => {
-        r.addEventListener("click", () => openCoinDetail(r.dataset.sym));
-      });
-    }
-
-    async function fetchAllMarketData() {
-      $("topStatus").textContent = "Loading...";
-      const qs = new URLSearchParams({ page: 1, limit: 250, q: state.q, sort: state.sort });
-      try {
-        const res = await fetch(`${API_BASE}/api/crypto-market?${qs}`);
-        const data = await res.json();
-        state.allCache = data.items || [];
-        renderHighlights(state.allCache);
-        applyView();
-      } catch (e) {
-        $("topStatus").textContent = "API error";
-        $("coinRows").innerHTML = `<div class="muted-sm" style="padding:16px;">Could not load market data.</div>`;
-      }
-    }
-
-    function applyView() {
-      if (state.tab === "pnl") {
-        renderPnlTab();
-        return;
-      }
-
-      let filtered = state.allCache.filter((item) => {
-        const cat = classifyAsset(item);
-        if (state.tab === "native" && cat !== "native") return false;
-        if (state.tab === "token" && cat !== "token") return false;
-        if (state.tab === "stock" && cat !== "stock") return false;
-        if (state.tab === "watchlist" && !state.watchlist.includes(item.symbol)) return false;
-        if (!itemMatchesNetwork(item, state.network)) return false;
-        return true;
-      });
-
-      if (state.sort === "gainers") {
-        filtered.sort((a, b) => Number(b.change_24h || 0) - Number(a.change_24h || 0));
-      } else if (state.sort === "losers") {
-        filtered.sort((a, b) => Number(a.change_24h || 0) - Number(b.change_24h || 0));
-      } else if (state.sort === "price") {
-        filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-      } else if (state.sort === "symbol") {
-        filtered.sort((a, b) => String(a.symbol).localeCompare(String(b.symbol)));
-      } else {
-        filtered.sort((a, b) => Number(b.quote_volume_24h ?? b.volume_24h ?? 0) - Number(a.quote_volume_24h ?? a.volume_24h ?? 0));
-      }
-
-      state.total = filtered.length;
-      const maxPage = Math.max(1, Math.ceil(state.total / state.limit));
-      if (state.page > maxPage) state.page = 1;
-      const start = (state.page - 1) * state.limit;
-      const pageItems = filtered.slice(start, start + state.limit);
-
-      renderMainRows(pageItems, start);
-      $("pageStatus").textContent = `Page ${state.page} / ${maxPage}`;
-      $("prevPageBtn").disabled = state.page <= 1;
-      $("nextPageBtn").disabled = state.page >= maxPage;
-      $("topStatus").textContent = `${state.total} coins${state.network ? " • " + state.network : ""}`;
-    }
-
-    function renderMainRows(items, offset) {
-      const wrap = $("coinRows");
-      if (!items.length) {
-        wrap.innerHTML = `<div class="muted-sm" style="padding:16px;">No coins in this view.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = items.map((c, i) => {
-        const chg = Number(c.change_24h || 0);
-        const cls = chg >= 0 ? "up" : "dn";
-        const sign = chg >= 0 ? "+" : "";
-        const vol = c.quote_volume_24h ?? c.volume_24h ?? 0;
-        const saved = state.watchlist.includes(c.symbol);
-        const tag = classifyAsset(c).toUpperCase();
-        const imgHtml = c.logo ? `<img class="coin-img" src="${c.logo}" alt="${c.symbol}" onerror="this.style.display='none'" />` : "";
-
-        return `
-          <div class="coin-row" data-sym="${c.symbol}">
-            <div class="row-l">
-              <button class="star-btn ${saved ? "saved" : ""}" data-star="${c.symbol}" title="Watchlist">★</button>
-              <span class="idx-num">${offset + i + 1}</span>
-              ${imgHtml}
-              <div class="coin-meta">
-                <div class="coin-name-row">
-                  <span class="coin-h">${c.name || c.symbol}</span>
-                  <span class="coin-sym">${c.symbol}</span>
-                  <span class="badge-tag">${tag}</span>
-                </div>
-                <div class="vol-only">24H VOL: ${fmtVol(vol)}</div>
-              </div>
-            </div>
-            <div class="row-r">
-              <div class="px">${fmtPrice(c.price)}</div>
-              <div class="pct ${cls}">${sign}${chg.toFixed(2)}%</div>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      wrap.querySelectorAll(".star-btn").forEach((b) => {
-        b.addEventListener("click", (ev) => {
-          ev.stopPropagation();
-          const sym = b.dataset.star;
-          if (state.watchlist.includes(sym)) {
-            state.watchlist = state.watchlist.filter((x) => x !== sym);
-          } else {
-            state.watchlist.push(sym);
-          }
-          saveLocal();
-          applyView();
-        });
-      });
-
-      wrap.querySelectorAll(".coin-row").forEach((row) => {
-        row.addEventListener("click", () => openCoinDetail(row.dataset.sym));
-      });
-    }
-
-    function renderPnlTab() {
-      const wrap = $("coinRows");
-      $("pageStatus").textContent = "Profit & Loss";
-      $("prevPageBtn").disabled = true;
-      $("nextPageBtn").disabled = true;
-
-      if (!state.trades.length) {
-        wrap.innerHTML = `<div class="muted-sm" style="padding:16px;">No Buy/Sell positions yet. Click any coin and place a Buy or Sell order to track Profit & Loss.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = state.trades.map((t) => {
-        const live = state.allCache.find((x) => x.symbol === t.symbol);
-        const curPx = Number(live?.price ?? t.entryPrice);
-        const pnlPct = t.entryPrice > 0 ? ((curPx - t.entryPrice) / t.entryPrice) * 100 * (t.side === "buy" ? 1 : -1) : 0;
-        const pnlUsd = (t.usd * pnlPct) / 100;
-        const cls = pnlUsd >= 0 ? "up" : "dn";
-        return `
-          <div class="coin-row" data-sym="${t.symbol}">
-            <div class="row-l">
-              <div class="coin-meta">
-                <div class="coin-name-row">
-                  <span class="coin-h">${t.symbol}</span>
-                  <span class="badge-tag">${t.side.toUpperCase()}</span>
-                </div>
-                <div class="vol-only">Entry: ${fmtPrice(t.entryPrice)} • Now: ${fmtPrice(curPx)}</div>
-              </div>
-            </div>
-            <div class="row-r">
-              <div class="px ${cls}">${pnlUsd >= 0 ? "+" : ""}${fmtPrice(pnlUsd)}</div>
-              <div class="pct ${cls}">${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}%</div>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      wrap.querySelectorAll(".coin-row").forEach((r) => {
-        r.addEventListener("click", () => openCoinDetail(r.dataset.sym));
-      });
-    }
-
-    async function openCoinDetail(sym) {
-      state.selectedSymbol = sym;
-      state.tf = "24h";
-      $("mainScreen").style.display = "none";
-      $("detailScreen").classList.add("open");
-      $("dTitle").textContent = sym;
-      $("dPrice").textContent = "Loading...";
-      $("tradeFeedback").textContent = "";
-
-      $("tfRow").querySelectorAll(".tf-btn").forEach((b) => {
-        b.classList.toggle("active", b.dataset.tf === state.tf);
-      });
-
-      try {
-        const res = await fetch(`${API_BASE}/api/crypto-market/${encodeURIComponent(sym)}`);
-        const d = await res.json();
-        const px = Number(d.price || 0);
-        state.selectedPrice = px;
-        $("dImg").src = d.logo || "";
-        $("dTitle").textContent = `${d.name || d.symbol} (${d.symbol})`;
-        $("dSub").textContent = `${d.exchange || "Market"} ${d.pair ? "• " + d.pair : ""}`;
-        $("dPrice").textContent = fmtPrice(px);
-        const chg = Number(d.change_24h || 0);
-        $("dChg").textContent = `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`;
-        $("dChg").className = "stat-v " + (chg >= 0 ? "up" : "dn");
-        $("dVol").textContent = fmtVol(d.quote_volume_24h ?? d.volume_24h ?? 0);
-        $("dHiLo").textContent = `${fmtPrice(d.high_24h)} / ${fmtPrice(d.low_24h)}`;
-        updateEstQty();
-
-        $("openSwapBtn").onclick = () => {
-          window.location.href = SWAP_ROUTE.replace("{SYMBOL}", encodeURIComponent(d.symbol));
-        };
-      } catch (e) {
-        $("dPrice").textContent = "-";
-      }
-
-      fetchDetailHistory(sym, state.tf);
-    }
-
-    function updateEstQty() {
-      const usd = Number($("tradeUsdInput").value || 0);
-      const px = Number(state.selectedPrice || 0);
-      $("tradeQtyInput").value = px > 0 && usd > 0 ? (usd / px).toFixed(6) : "0";
-    }
-
-    function setTradeSide(side) {
-      state.tradeSide = side;
-      $("modeBuyBtn").classList.toggle("active", side === "buy");
-      $("modeSellBtn").classList.toggle("active", side === "sell");
-      $("execTradeBtn").textContent = side === "buy" ? "Buy" : "Sell";
-      $("execTradeBtn").className = side === "buy" ? "btn-buy" : "btn-sell";
-    }
-
-    async function fetchDetailHistory(sym, tf) {
-      try {
-        const res = await fetch(`${API_BASE}/api/crypto-market/${encodeURIComponent(sym)}/history?range=${encodeURIComponent(tf)}`);
-        const data = await res.json();
-        drawDetailChart(data.points || []);
-      } catch (e) {
-        drawDetailChart([]);
-      }
-    }
-
-    function drawDetailChart(points) {
-      const cv = $("detailCanvas");
-      const ctx = cv.getContext("2d");
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      const prices = points.map((p) => Number(p.priceUsd)).filter((n) => Number.isFinite(n));
-      if (prices.length < 2) {
-        ctx.fillStyle = "#6b7280";
-        ctx.font = "14px sans-serif";
-        ctx.fillText("No history points available", 24, 112);
-        return;
-      }
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      const pad = 20;
-      const w = cv.width - pad * 2;
-      const h = cv.height - pad * 2;
-      ctx.beginPath();
-      prices.forEach((val, idx) => {
-        const x = pad + (idx / (prices.length - 1)) * w;
-        const y = pad + h - ((val - min) / (max - min || 1)) * h;
-        if (idx === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.strokeStyle = "#16a34a";
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    }
-
-    // Event Listeners
-    $("toggleNetworksBtn").addEventListener("click", () => {
-      $("networksPanel").classList.toggle("open");
+  function applyNetworkAndSearch(list) {
+    const netFilter = state.network.trim().toLowerCase();
+    const q = state.query.trim().toLowerCase();
+    return list.filter(it => {
+      if (netFilter && !it.network.toLowerCase().includes(netFilter)) return false;
+      if (!q) return true;
+      return (
+        it.name.toLowerCase().includes(q) ||
+        it.symbol.toLowerCase().includes(q) ||
+        it.address.toLowerCase().includes(q) ||
+        it.id.toLowerCase().includes(q)
+      );
     });
+  }
 
-    $("clearNetBtn").addEventListener("click", () => {
-      state.network = "";
-      state.page = 1;
-      renderNetworks();
-      applyView();
+  // Single Unified Pagination Function (75 items per page)
+  function paginateItems(items, currentPage, pageSize = PAGE_SIZE) {
+    const total = items.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const safePage = Math.min(Math.max(1, currentPage), totalPages);
+    const startIdx = (safePage - 1) * pageSize;
+    const slice = items.slice(startIdx, startIdx + pageSize);
+    return { slice, page: safePage, totalPages, total, startIdx };
+  }
+
+  function renderPagination(meta) {
+    const pager = $("market-pagination");
+    if (!pager) return;
+    if (meta.total <= 0) {
+      pager.innerHTML = "";
+      return;
+    }
+    pager.innerHTML =
+      `<button type="button" id="dx-prev" ${meta.page <= 1 ? "disabled" : ""}>Prev</button>` +
+      `<span>Page ${meta.page} / ${meta.totalPages} (${meta.total} items · ${PAGE_SIZE}/page)</span>` +
+      `<button type="button" id="dx-next" ${meta.page >= meta.totalPages ? "disabled" : ""}>Next</button>`;
+
+    $("dx-prev")?.addEventListener("click", () => {
+      state.page = Math.max(1, state.page - 1);
+      renderList();
     });
-
-    $("backBtn").addEventListener("click", () => {
-      $("detailScreen").classList.remove("open");
-      $("mainScreen").style.display = "block";
+    $("dx-next")?.addEventListener("click", () => {
+      state.page = Math.min(meta.totalPages, state.page + 1);
+      renderList();
     });
+  }
 
-    $("tfRow").querySelectorAll(".tf-btn").forEach((b) => {
-      b.addEventListener("click", () => {
-        $("tfRow").querySelectorAll(".tf-btn").forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        state.tf = b.dataset.tf;
-        if (state.selectedSymbol) fetchDetailHistory(state.selectedSymbol, state.tf);
-      });
-    });
-
-    $("modeBuyBtn").addEventListener("click", () => setTradeSide("buy"));
-    $("modeSellBtn").addEventListener("click", () => setTradeSide("sell"));
-    $("tradeUsdInput").addEventListener("input", updateEstQty);
-
-    $("execTradeBtn").addEventListener("click", () => {
-      const usd = Number($("tradeUsdInput").value || 0);
-      if (!state.selectedSymbol || usd <= 0) return;
-      state.trades.unshift({
-        symbol: state.selectedSymbol,
-        side: state.tradeSide,
-        usd,
-        entryPrice: state.selectedPrice || 1,
+  function openAssetDetail(item) {
+    try {
+      sessionStorage.setItem(PREVIEW_KEY, JSON.stringify({
+        kind: item.kind,
+        id: item.id,
+        symbol: item.symbol,
+        name: item.name,
+        logo: item.logo,
+        price: item.price,
+        chg: item.chg,
+        vol: item.vol,
+        net: item.network,
         ts: Date.now()
+      }));
+    } catch (_) {}
+
+    if (item.kind === "native") {
+      window.location.href = `coin.html?kind=native&coinId=${encodeURIComponent(item.id)}&symbol=${encodeURIComponent(item.symbol)}`;
+    } else if (item.kind === "stock") {
+      window.location.href = `coin.html?kind=stock&stockId=${encodeURIComponent(item.id)}&symbol=${encodeURIComponent(item.symbol)}`;
+    } else {
+      const addr = /^0x[a-fA-F0-9]{40}$/.test(item.address) ? item.address : item.id;
+      window.location.href = `coin.html?kind=token&address=${encodeURIComponent(addr)}&symbol=${encodeURIComponent(item.symbol)}`;
+    }
+  }
+
+  function renderList() {
+    const listEl = $("market-list");
+    if (!listEl) return;
+    const watchSet = getWatchlistSet();
+    const filtered = applyNetworkAndSearch(state.allItems);
+    const meta = paginateItems(filtered, state.page, PAGE_SIZE);
+    state.page = meta.page;
+
+    if (!meta.slice.length) {
+      listEl.innerHTML = `<div class="market-empty">No matching items found.</div>`;
+      renderPagination({ total: 0, page: 1, totalPages: 1 });
+      return;
+    }
+
+    listEl.innerHTML = meta.slice.map((it, idx) => {
+      const watchKey = `${it.kind}:${it.id || it.symbol}`.toLowerCase();
+      const saved = watchSet.has(watchKey);
+      const chgCls = it.chg > 0 ? "dimex-chg-up" : it.chg < 0 ? "dimex-chg-down" : "dimex-chg-flat";
+      const chgTxt = `${it.chg > 0 ? "+" : ""}${it.chg.toFixed(2)}%`;
+      const icon = it.logo
+        ? `<img class="coin-logo" src="${esc(it.logo)}" alt="" onerror="this.style.display='none'">`
+        : `<span class="coin-letter">${esc(it.symbol.slice(0, 2) || "?")}</span>`;
+
+      return `<div class="dimex-market-row" data-idx="${idx}">
+        <div class="dimex-coin-cell">
+          <button type="button" class="dimex-star-btn ${saved ? "saved" : ""}" data-watch="${esc(watchKey)}">${saved ? "★" : "☆"}</button>
+          <strong>${meta.startIdx + idx + 1}</strong>
+          ${icon}
+          <div><strong>${esc(it.name)}</strong><br><small>${esc(it.symbol)}</small></div>
+        </div>
+        <div><strong>${fmtPrice(it.price)}</strong></div>
+        <div class="${chgCls}">${esc(chgTxt)}</div>
+        <div>${fmtVol(it.vol)}</div>
+        <div><small>${esc(it.network)} · ${esc(it.kind.toUpperCase())}</small></div>
+      </div>`;
+    }).join("");
+
+    listEl.querySelectorAll(".dimex-star-btn").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        ev.stopPropagation();
+        toggleWatchlist(btn.getAttribute("data-watch"));
       });
-      saveLocal();
-      $("tradeFeedback").textContent = `${state.tradeSide.toUpperCase()} order recorded for ${state.selectedSymbol} ($${usd}) — check Profit & Loss tab.`;
     });
 
-    $("tabBar").querySelectorAll(".tab-btn").forEach((b) => {
-      b.addEventListener("click", () => {
-        $("tabBar").querySelectorAll(".tab-btn").forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        state.tab = b.dataset.tab;
-        state.page = 1;
-        applyView();
+    listEl.querySelectorAll(".dimex-market-row").forEach(row => {
+      row.addEventListener("click", () => {
+        const i = Number(row.getAttribute("data-idx"));
+        if (meta.slice[i]) openAssetDetail(meta.slice[i]);
       });
     });
 
-    $("searchInput").addEventListener("input", (e) => {
-      state.q = e.target.value.trim();
-      state.page = 1;
-      fetchAllMarketData();
-    });
+    renderPagination(meta);
+    if ($("market-data-note")) {
+      $("market-data-note").textContent = `Tab: ${state.tab} · Pipes: /api/crypto-market, /api/token-market, /api/stock-market`;
+    }
+  }
 
-    $("sortSelect").addEventListener("change", (e) => {
-      state.sort = e.target.value;
-      state.page = 1;
-      fetchAllMarketData();
-    });
+  async function runMarketPipeline() {
+    const listEl = $("market-list");
+    if (listEl) listEl.innerHTML = `<div class="market-empty">Loading markets...</div>`;
 
-    $("prevPageBtn").addEventListener("click", () => {
-      if (state.page > 1) { state.page--; applyView(); }
-    });
+    try {
+      let rows = [];
+      if (state.tab === "native") rows = await loadNativeCoins();
+      else if (state.tab === "tokens") rows = await loadTokens();
+      else if (state.tab === "stocks") rows = await loadStocks();
+      else if (state.tab === "profit-loss") rows = await loadProfitLoss();
+      else if (state.tab === "stablecoins") rows = await loadStablecoins();
+      else if (state.tab === "watchlist") {
+        const all = await loadTrending();
+        const watchSet = getWatchlistSet();
+        rows = all.filter(it => watchSet.has(`${it.kind}:${it.id || it.symbol}`.toLowerCase()));
+      } else {
+        rows = await loadTrending();
+      }
+      state.allItems = rows;
+      renderList();
+    } catch (_) {
+      if (listEl) listEl.innerHTML = `<div class="market-empty">Failed to load market data.</div>`;
+    }
+  }
 
-    $("nextPageBtn").addEventListener("click", () => {
-      state.page++;
-      applyView();
-    });
+  $("market-tabs")?.addEventListener("click", ev => {
+    const btn = ev.target.closest("[data-market-tab]");
+    if (!btn) return;
+    document.querySelectorAll("#market-tabs .dimex-tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.tab = btn.getAttribute("data-market-tab") || "trending";
+    state.page = 1;
+    runMarketPipeline();
+  });
 
-    renderNetworks();
-    fetchAllMarketData();
-  </script>
+  $("market-network")?.addEventListener("change", ev => {
+    state.network = ev.target.value || "";
+    state.page = 1;
+    renderList();
+  });
+
+  $("market-search")?.addEventListener("input", ev => {
+    state.query = ev.target.value || "";
+    state.page = 1;
+    renderList();
+  });
+
+  runMarketPipeline();
+})();
+</script>
 </body>
 </html>
