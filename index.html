@@ -3,296 +3,546 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DimeX Exchange | Professional Trading</title>
+<title>DimeX Market &amp; Swap | Hybrid Exchange</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/theme.css">
 <script src="js/theme.js"></script>
 <style>
   :root {
-    --dx-bg: #0b0f17;
-    --dx-panel: #121826;
-    --dx-panel-2: #182032;
-    --dx-border: rgba(148, 163, 184, 0.16);
+    --dx-bg: #030914;
+    --dx-surface: #071122;
+    --dx-surface-2: #0c1a33;
+    --dx-pill: #0b2447;
+    --dx-blue: #0077ff;
+    --dx-blue-hover: #1a85ff;
+    --dx-border: rgba(148, 163, 184, 0.14);
     --dx-text: #f8fafc;
     --dx-muted: #94a3b8;
-    --dx-gold: #f59e0b;
-    --dx-emerald: #10b981;
-    --dx-crimson: #ef4444;
-    --dx-blue: #38bdf8;
+    --dx-green: #16c784;
+    --dx-red: #ea3943;
   }
 
-  .dimex-market-shell {
-    background: var(--dx-panel);
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--dx-bg);
     color: var(--dx-text);
-    border: 1px solid var(--dx-border);
-    border-radius: 14px;
-    padding: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  .dimex-market-top {
+  .dx-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
+    padding: 12px 18px;
+    background: rgba(3, 9, 20, 0.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--dx-border);
+  }
+
+  .dx-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--dx-text);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+  }
+
+  .dx-brand img {
+    height: 28px;
+    width: auto;
+  }
+
+  .dx-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dx-nav-btn {
+    background: var(--dx-surface);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .dx-nav-btn.active,
+  .dx-nav-btn:hover {
+    background: var(--dx-blue);
+    border-color: var(--dx-blue);
+    color: #ffffff;
+  }
+
+  .dx-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  .dx-section-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 14px;
+    color: var(--dx-text);
+  }
+
+  .dx-top-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 14px;
   }
 
-  .dimex-network-select {
-    background: var(--dx-panel-2);
+  .dx-pill-btn {
+    background: var(--dx-surface);
     color: var(--dx-text);
     border: 1px solid var(--dx-border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .dimex-tab-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .dimex-tab-btn {
-    background: var(--dx-panel-2);
-    color: var(--dx-muted);
-    border: 1px solid var(--dx-border);
-    border-radius: 8px;
-    padding: 7px 13px;
-    font-size: 13px;
-    font-weight: 600;
+    border-radius: 999px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
-  .dimex-tab-btn.active,
-  .dimex-tab-btn:hover {
-    background: var(--dx-gold);
-    color: #0b0f17;
-    border-color: var(--dx-gold);
+  .dx-pill-btn.active {
+    background: var(--dx-pill);
+    border-color: var(--dx-blue);
+    color: #ffffff;
   }
 
-  .dimex-search-input {
-    width: 100%;
-    background: var(--dx-panel-2);
+  .dx-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .dx-select,
+  .dx-search {
+    background: var(--dx-surface);
     color: var(--dx-text);
     border: 1px solid var(--dx-border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 14px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
   }
 
-  .dimex-list-head,
-  .dimex-market-row {
-    display: grid;
-    grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1fr;
-    align-items: center;
-    gap: 10px;
-    padding: 11px 12px;
+  .dx-search {
+    flex: 1;
+    min-width: 220px;
+    border-radius: 12px;
   }
 
-  .dimex-list-head {
+  .dx-sub-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .dx-sub-btn {
+    background: transparent;
     color: var(--dx-muted);
+    border: 1px solid var(--dx-border);
+    border-radius: 8px;
+    padding: 6px 12px;
     font-size: 12px;
     font-weight: 700;
+    cursor: pointer;
+  }
+
+  .dx-sub-btn.active {
+    background: var(--dx-surface-2);
+    color: var(--dx-text);
+    border-color: var(--dx-blue);
+  }
+
+  .dx-table-head,
+  .dx-row {
+    display: grid;
+    grid-template-columns: 2.2fr 1.1fr 1fr 1.1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 10px;
+  }
+
+  .dx-table-head {
+    color: var(--dx-muted);
+    font-size: 13px;
+    font-weight: 600;
     border-bottom: 1px solid var(--dx-border);
   }
 
-  .dimex-market-row {
+  .dx-row {
     border-bottom: 1px solid var(--dx-border);
     cursor: pointer;
     transition: background 0.12s ease;
   }
 
-  .dimex-market-row:hover {
-    background: var(--dx-panel-2);
+  .dx-row:hover {
+    background: var(--dx-surface);
   }
 
-  .dimex-coin-cell {
+  .dx-asset-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
   }
 
-  .dimex-star-btn {
+  .dx-star {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--dx-muted);
     font-size: 17px;
     cursor: pointer;
-    padding: 0 4px;
+    padding: 0 2px;
   }
 
-  .dimex-star-btn.saved {
-    color: var(--dx-gold);
+  .dx-star.saved {
+    color: #fbbf24;
   }
 
-  .dimex-chg-up { color: var(--dx-emerald); font-weight: 600; }
-  .dimex-chg-down { color: var(--dx-crimson); font-weight: 600; }
-  .dimex-chg-flat { color: var(--dx-muted); font-weight: 600; }
+  .dx-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--dx-surface-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
 
-  .dimex-pager {
+  .dx-asset-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dx-asset-sub {
+    font-size: 11px;
+    color: var(--dx-muted);
+  }
+
+  .dx-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dx-text);
+  }
+
+  .dx-up { color: var(--dx-green); font-weight: 700; font-size: 15px; }
+  .dx-down { color: var(--dx-red); font-weight: 700; font-size: 15px; }
+  .dx-flat { color: var(--dx-muted); font-weight: 700; font-size: 15px; }
+
+  .dx-pagination {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    margin-top: 14px;
+    gap: 10px;
+    margin: 20px 0 10px;
+    color: var(--dx-muted);
+    font-size: 14px;
   }
 
-  .dimex-pager button {
-    background: var(--dx-panel-2);
+  .dx-page-btn {
+    background: var(--dx-surface);
     color: var(--dx-text);
     border: 1px solid var(--dx-border);
     border-radius: 8px;
-    padding: 6px 14px;
+    padding: 7px 14px;
+    font-weight: 700;
     cursor: pointer;
   }
 
-  .dimex-pager button:disabled {
-    opacity: 0.4;
+  .dx-page-btn.active {
+    background: var(--dx-pill);
+    border-color: var(--dx-blue);
+    color: #ffffff;
+  }
+
+  .dx-page-btn:disabled {
+    opacity: 0.35;
     cursor: not-allowed;
   }
 
+  .dx-card-panel {
+    background: var(--dx-surface);
+    border: 1px solid var(--dx-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 22px;
+  }
+
+  .dx-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .dx-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .dx-stat-box small {
+    display: block;
+    color: var(--dx-muted);
+    font-size: 12px;
+  }
+
+  .dx-stat-box strong {
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .dx-btn-primary {
+    background: var(--dx-blue);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .dx-btn-primary:hover {
+    background: var(--dx-blue-hover);
+  }
+
+  .dx-btn-secondary {
+    background: var(--dx-surface-2);
+    color: var(--dx-text);
+    border: 1px solid var(--dx-border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .dx-range-bar {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .dx-range-btn {
+    background: var(--dx-surface-2);
+    color: var(--dx-muted);
+    border: 1px solid var(--dx-border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .dx-range-btn.active {
+    background: var(--dx-pill);
+    border-color: var(--dx-blue);
+    color: #ffffff;
+  }
+
+  .dx-history-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--dx-border);
+    font-size: 14px;
+  }
+
   @media (max-width: 768px) {
-    .dimex-list-head { display: none; }
-    .dimex-market-row {
-      grid-template-columns: 1.6fr 1fr 1fr;
-    }
+    .dx-table-head { display: none; }
+    .dx-row { grid-template-columns: 1.7fr 1fr 0.9fr; }
+    .dx-row .dx-col-vol { display: none; }
+    .dx-grid-2 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <a class="logo" href="/" aria-label="DimeX Exchange Home"><img src="https://www.dimex.site/assets/dimex-token-logo-navy.svg" alt="DimeX Logo"></a>
-  <nav>
-    <a href="#trading"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></svg>Markets</a>
-    <a href="#trading"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h17M8 15V9h3v6zm6 0V5h3v10z"/></svg>Trade</a>
-    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="M20 7H5a3 3 0 0 0 0 6h15M4 7V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/></svg>Swap</a>
-    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="M12 3v18m-6-5 6 5 6-5M6 8l6-5 6 5"/></svg>Earn</a>
-    <a href="#customer-wallet"><svg viewBox="0 0 24 24"><path d="m12 2 2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/></svg>Launchpad</a>
+<header class="dx-topbar">
+  <a class="dx-brand" href="#market-watch">
+    <img src="https://www.dimex.site/assets/dimex-token-logo-navy.svg" alt="DimeX" onerror="this.style.display='none'">
+    <span>DimeX Market &amp; Swap</span>
+  </a>
+
+  <nav class="dx-nav" id="dx-main-nav">
+    <button type="button" class="dx-nav-btn active" data-section="market-watch">Market Watch</button>
+    <a class="dx-nav-btn" href="wallet.html" id="dx-my-wallet-link">My Wallet</a>
+    <button type="button" class="dx-nav-btn" data-section="pool-section">Pool</button>
+    <button type="button" class="dx-nav-btn" data-section="launch-section">Launch Token</button>
   </nav>
-  <button class="theme-toggle" type="button"><span class="theme-icon">☾</span><span class="theme-label">Dark mode</span></button>
-  <button class="wallet-btn"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18m-5 5h2"/></svg>Connect Wallet</button>
 </header>
 
-<section class="hero">
-  <div class="hero-copy">
-    <span class="hero-tag">THE NEXT GENERATION HYBRID EXCHANGE</span>
-    <h1>Trade Beyond<br><span>Boundaries.</span></h1>
-    <p>One platform. Multiple blockchains. Unlimited trading possibilities.</p>
-    <div class="hero-actions">
-      <a href="#trading" class="hero-primary">Explore Markets</a>
-      <a href="wallet.html" class="hero-secondary">My Wallet</a>
-    </div>
-    <div class="hero-stats">
-      <div><strong>50+</strong><small>Coin Groups Planned</small></div>
-      <div><strong>Multi-chain</strong><small>Hybrid Ecosystem</small></div>
-      <div><strong>24/7</strong><small>Trading Platform</small></div>
-    </div>
-  </div>
-  <div class="hero-visual">
-    <div class="orbit orbit-one"></div>
-    <div class="orbit orbit-two"></div>
-    <div class="hero-coin">D<span>X</span></div>
-    <div class="float-card float-btc"><b>₿</b><span>BITCOIN</span><strong>BTC</strong></div>
-    <div class="float-card float-eth"><b>◆</b><span>ETHEREUM</span><strong>ETH</strong></div>
-    <div class="float-card float-dmx"><b>DX</b><span>DIMEX CHAIN</span><strong>DMXC</strong></div>
-  </div>
-</section>
+<main class="dx-container">
+  <!-- MARKET WATCH SECTION -->
+  <section id="market-watch">
+    <h1 class="dx-section-title">Asset prices by market cap</h1>
 
-<section class="market-strip">
-  <div>BTC/USDT <b>$--</b></div>
-  <div>ETH/USDT <b>$--</b></div>
-  <div>BNB/USDT <b>$--</b></div>
-  <div>DMXC/USDT <b>$--</b></div>
-</section>
+    <div class="dx-top-pills" id="dx-asset-scope">
+      <button type="button" class="dx-pill-btn active" data-scope="all">All assets</button>
+      <button type="button" class="dx-pill-btn" data-scope="crypto">Crypto</button>
+      <button type="button" class="dx-pill-btn" data-scope="stocks">Tokenized Stocks</button>
+    </div>
 
-<main class="dashboard" id="trading">
-  <section class="panel market-watch dimex-market-shell" id="dimex-markets">
-    <div class="dimex-market-top">
+    <div class="dx-filter-row">
+      <select id="dx-network-select" class="dx-select" aria-label="Select Network">
+        <option value="" selected>All 34 Networks</option>
+      </select>
+
+      <select id="dx-category-select" class="dx-select" aria-label="Select Category">
+        <option value="trending" selected>Trending (Volume High → Low)</option>
+        <option value="profit-loss">Profit &amp; Loss (Gain High → Low)</option>
+        <option value="stablecoins">Stablecoins</option>
+        <option value="watchlist">Watchlist</option>
+      </select>
+
+      <input id="dx-search-input" class="dx-search" type="search" placeholder="Search asset name, symbol or address">
+    </div>
+
+    <div class="dx-sub-tabs" id="dx-quick-tabs">
+      <button type="button" class="dx-sub-btn active" data-mode="trending">Trending</button>
+      <button type="button" class="dx-sub-btn" data-mode="profit-loss">Profit &amp; Loss</button>
+      <button type="button" class="dx-sub-btn" data-mode="stablecoins">Stablecoins</button>
+      <button type="button" class="dx-sub-btn" data-mode="watchlist">☆ Watchlist</button>
+    </div>
+
+    <div class="dx-table-head">
+      <span>Asset</span>
+      <span>Price</span>
+      <span>24H change</span>
+      <span class="dx-col-vol">24H volume</span>
+    </div>
+
+    <div id="dx-market-list">Loading markets...</div>
+    <div id="dx-range-summary" class="dx-pagination"></div>
+    <div id="dx-pagination" class="dx-pagination"></div>
+  </section>
+
+  <!-- COIN / ASSET DETAIL + GRAPH + BUY/SELL/SWAP PANEL -->
+  <section id="dx-detail-panel" class="dx-card-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="dx-detail-avatar" class="dx-avatar">DX</span>
+        <div>
+          <h2 id="dx-detail-title" style="margin:0;font-size:22px;">Select any asset to view chart &amp; trade</h2>
+          <small id="dx-detail-meta" style="color:var(--dx-muted);">Separate detail pipe · Native / Token / Stock</small>
+        </div>
+      </div>
+      <button type="button" id="dx-detail-watch" class="dx-btn-secondary">☆ Watchlist</button>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div id="dx-detail-price" style="font-size:34px;font-weight:800;">$0.00</div>
+      <div id="dx-detail-change" class="dx-up" style="margin-top:4px;">+0.00%</div>
+    </div>
+
+    <div class="dx-grid-2" style="margin-top:16px;">
       <div>
-        <h2>Market Watch</h2>
-        <p>Separate pipes for Native Coins, Tokens, and Stocks · Unified 75-item pagination</p>
+        <canvas id="dx-price-chart" width="600" height="220" style="width:100%;height:220px;background:var(--dx-bg);border-radius:12px;border:1px solid var(--dx-border);"></canvas>
+        <div class="dx-range-bar" id="dx-chart-ranges">
+          <button type="button" class="dx-range-btn" data-range="1H">1H</button>
+          <button type="button" class="dx-range-btn active" data-range="24H">24H</button>
+          <button type="button" class="dx-range-btn" data-range="1W">1W</button>
+          <button type="button" class="dx-range-btn" data-range="1M">1M</button>
+          <button type="button" class="dx-range-btn" data-range="3M">3M</button>
+        </div>
+
+        <h3 style="margin:18px 0 6px;">Market data</h3>
+        <div class="dx-stat-grid">
+          <div class="dx-stat-box"><small>Market cap</small><strong id="dx-stat-mcap">—</strong></div>
+          <div class="dx-stat-box"><small>Rank</small><strong id="dx-stat-rank">—</strong></div>
+          <div class="dx-stat-box"><small>24H volume</small><strong id="dx-stat-vol">—</strong></div>
+          <div class="dx-stat-box"><small>Circulating supply</small><strong id="dx-stat-circ">—</strong></div>
+          <div class="dx-stat-box"><small>All-time high</small><strong id="dx-stat-ath">—</strong></div>
+          <div class="dx-stat-box"><small>All-time low</small><strong id="dx-stat-atl">—</strong></div>
+          <div class="dx-stat-box"><small>Total supply</small><strong id="dx-stat-supply">—</strong></div>
+          <div class="dx-stat-box"><small>Network / Type</small><strong id="dx-stat-net">—</strong></div>
+        </div>
       </div>
-      <label class="network-label">Network
-        <select id="market-network" class="dimex-network-select">
-          <option value="" selected>All Networks</option>
-          <option value="bnb">BNB Chain</option>
-          <option value="ethereum">Ethereum</option>
-          <option value="polygon">Polygon</option>
-          <option value="arbitrum">Arbitrum</option>
-          <option value="optimism">Optimism</option>
-          <option value="solana">Solana</option>
-          <option value="tron">TRON</option>
-          <option value="avalanche">Avalanche</option>
-        </select>
-      </label>
-    </div>
 
-    <div class="dimex-tab-bar" id="market-tabs">
-      <button type="button" class="dimex-tab-btn active" data-market-tab="trending">Trending</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="native">Native Coins</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="tokens">Tokens</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="stocks">Stocks</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="profit-loss">Profit &amp; Loss</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="stablecoins">Stablecoins</button>
-      <button type="button" class="dimex-tab-btn" data-market-tab="watchlist">☆ Watchlist</button>
-    </div>
+      <div>
+        <div class="dx-card-panel" style="margin-top:0;background:var(--dx-bg);">
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <button type="button" class="dx-pill-btn active" id="dx-side-buy">Buy / Swap</button>
+            <button type="button" class="dx-pill-btn" id="dx-side-sell">Sell</button>
+          </div>
+          <label style="display:block;font-size:12px;color:var(--dx-muted);margin-bottom:6px;">Amount (USD)</label>
+          <input id="dx-trade-amount" type="number" min="0" step="any" placeholder="100.00" class="dx-search" style="margin-bottom:12px;">
+          <button type="button" id="dx-trade-action" class="dx-btn-primary">Buy / Swap Asset</button>
+          <p id="dx-trade-status" style="color:var(--dx-muted);font-size:12px;margin-top:10px;">Connected to DimeX Swap / Customer Wallet flow.</p>
+        </div>
 
-    <input id="market-search" class="dimex-search-input" type="search" placeholder="Search coin name, symbol or contract address">
-
-    <div class="market-table-wrap">
-      <div class="dimex-list-head">
-        <span>☆ / Coin</span>
-        <span>Price</span>
-        <span>24H Change</span>
-        <span>24H Volume</span>
-        <span>Network / Type</span>
+        <h3 style="margin:18px 0 8px;">Price history</h3>
+        <div id="dx-price-history">
+          <div class="dx-history-row"><span>Today</span><strong id="dx-hist-today">—</strong><span id="dx-hist-today-chg">—</span></div>
+          <div class="dx-history-row"><span>1 day</span><strong id="dx-hist-1d">—</strong><span id="dx-hist-1d-chg">—</span></div>
+          <div class="dx-history-row"><span>1 week</span><strong id="dx-hist-1w">—</strong><span id="dx-hist-1w-chg">—</span></div>
+          <div class="dx-history-row"><span>1 month</span><strong id="dx-hist-1m">—</strong><span id="dx-hist-1m-chg">—</span></div>
+          <div class="dx-history-row"><span>1 year</span><strong id="dx-hist-1y">—</strong><span id="dx-hist-1y-chg">—</span></div>
+        </div>
       </div>
-      <div id="market-list">Loading markets...</div>
-    </div>
-
-    <div id="market-pagination" class="dimex-pager"></div>
-    <p class="market-data-note" id="market-data-note"></p>
-  </section>
-
-  <section class="panel chart-panel">
-    <h3>BTC / USDT <span class="green">Spot Market</span></h3>
-    <div class="chart-placeholder">
-      <div>DIMEX TRADING CHART</div>
-      <small>Live market chart will connect to DimeX Price Engine</small>
     </div>
   </section>
 
-  <section class="panel orderbook">
-    <h3>Order Book</h3>
-    <div class="table-head"><span>Price (USDT)</span><span>Amount</span></div>
-    <div class="empty-state">Waiting for live orders...</div>
+  <!-- POOL SECTION (Add / Remove / Increase Liquidity) -->
+  <section id="pool-section" class="dx-card-panel">
+    <h2 style="margin-top:0;">Pool</h2>
+    <p style="color:var(--dx-muted);margin-top:0;">Liquidity management: Add, Remove, and Increase liquidity positions.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <button type="button" class="dx-btn-secondary" data-pool-action="add">Add Liquidity</button>
+      <button type="button" class="dx-btn-secondary" data-pool-action="remove">Remove Liquidity</button>
+      <button type="button" class="dx-btn-secondary" data-pool-action="increase">Increase Liquidity</button>
+    </div>
+    <div id="dx-pool-box" style="background:var(--dx-bg);padding:14px;border-radius:12px;border:1px solid var(--dx-border);font-size:14px;">
+      Selected action: <strong>Add Liquidity</strong> — Enter token pair &amp; amounts to manage pool position.
+    </div>
   </section>
 
-  <section class="panel trade-panel">
-    <h3>Spot Trading</h3>
-    <div class="trade-tabs"><button>Buy</button><button>Sell</button></div>
-    <label>Price</label>
-    <input placeholder="Market price" disabled>
-    <label>Amount</label>
-    <input type="number" placeholder="0.00">
-    <button class="buy-btn" disabled>Trading Engine Not Connected</button>
-    <small>Trading will activate after blockchain integration and testing.</small>
-  </section>
-
-  <section class="panel assets-panel">
-    <h3>My Assets</h3>
-    <p>Connect your wallet to view assets.</p>
+  <!-- LAUNCH TOKEN SECTION -->
+  <section id="launch-section" class="dx-card-panel">
+    <h2 style="margin-top:0;">Launch Token</h2>
+    <p style="color:var(--dx-muted);margin-top:0;">Create and launch a new token on DimeX / supported networks.</p>
+    <div class="dx-grid-2">
+      <input id="dx-launch-name" type="text" placeholder="Token Name (e.g. DimeX Gold)" class="dx-search" style="margin:0;">
+      <input id="dx-launch-symbol" type="text" placeholder="Symbol (e.g. DXG)" class="dx-search" style="margin:0;">
+      <input id="dx-launch-supply" type="number" placeholder="Initial Supply (e.g. 1000000)" class="dx-search" style="margin:0;">
+      <button type="button" id="dx-launch-btn" class="dx-btn-primary">Prepare Launch Token</button>
+    </div>
+    <p id="dx-launch-status" style="color:var(--dx-muted);font-size:13px;margin-top:10px;"></p>
   </section>
 </main>
-
-<footer>DimeX Exchange · Independent Trading Platform</footer>
 
 <script src="js/appkit-globals.js"></script>
 <script src="js/wallet.js"></script>
@@ -300,21 +550,27 @@
 (() => {
   const PAGE_SIZE = 75;
   const WATCHLIST_KEY = "dimex_market_watchlist_v1";
-  const PREVIEW_KEY = "dimex_selected_coin_preview_v1";
-  const STABLE_SYMBOLS = new Set(["USDT", "USDC", "DAI", "BUSD", "FDUSD", "TUSD", "USDE", "PYUSD", "FRAX", "LUSD"]);
+  const STABLES = new Set(["USDT", "USDC", "DAI", "BUSD", "FDUSD", "TUSD", "USDE", "PYUSD", "FRAX", "LUSD"]);
 
-  const API_PIPES = {
-    native: "/api/crypto-market",
-    token: "/api/token-market",
-    stock: "/api/stock-market"
-  };
+  // 34 Networks list
+  const NETWORKS_34 = [
+    "Ethereum", "BNB Chain", "Polygon", "Arbitrum", "Optimism", "Base", "Avalanche", "Solana",
+    "TRON", "DimeX Chain", "Fantom", "Cronos", "Near", "Aptos", "Sui", "Polkadot",
+    "Cosmos", "Algorand", "Stellar", "Cardano", "Litecoin", "Bitcoin", "Dogecoin", "Ripple",
+    "Ton", "Celestia", "Injective", "Sei", "Mantle", "Linea", "zkSync Era", "Blast",
+    "Moonbeam", "Kava"
+  ];
 
   const state = {
-    tab: "trending",
+    scope: "all",       // "all" | "crypto" | "stocks"
+    mode: "trending",   // "trending" | "profit-loss" | "stablecoins" | "watchlist"
     network: "",
     query: "",
     page: 1,
-    allItems: []
+    allRows: [],
+    selectedAsset: null,
+    tradeSide: "buy",
+    chartRange: "24H"
   };
 
   const $ = id => document.getElementById(id);
@@ -337,7 +593,7 @@
     return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
   }
 
-  function fmtVol(v) {
+  function fmtCompactMoney(v) {
     const n = num(v);
     if (n <= 0) return "$0.00";
     return new Intl.NumberFormat("en-US", {
@@ -345,21 +601,39 @@
     }).format(n);
   }
 
-  function normalizeRow(raw, kind) {
+  function fmtCompactNum(v) {
+    const n = num(v);
+    if (n <= 0) return "—";
+    return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(n);
+  }
+
+  function populate34Networks() {
+    const sel = $("dx-network-select");
+    if (!sel) return;
+    NETWORKS_34.forEach(net => {
+      const opt = document.createElement("option");
+      opt.value = net.toLowerCase();
+      opt.textContent = net;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Separate Pipe Functions
+  function normalizeItem(raw, pipeKind) {
     const sym = String(raw.symbol || "").toUpperCase();
-    const id = String(
-      kind === "native"
-        ? (raw.coinId || raw.id || raw.symbol || "")
-        : kind === "stock"
-          ? (raw.id || raw.symbol || "")
-          : (raw.address || raw.contract || raw.id || raw.symbol || "")
-    );
     const net = String(
       raw.network || raw.networkName || raw.chain || raw.exchange ||
-      (kind === "native" ? "Native" : kind === "stock" ? "Stock" : "Token")
+      (pipeKind === "stock" ? "Stock Exchange" : pipeKind === "native" ? "Native" : "Ethereum")
+    );
+    const id = String(
+      pipeKind === "native"
+        ? (raw.coinId || raw.id || sym)
+        : pipeKind === "stock"
+          ? (raw.id || sym)
+          : (raw.address || raw.contract || raw.id || sym)
     );
     return {
-      kind,
+      pipeKind,
       id,
       symbol: sym,
       name: String(raw.name || sym || "Asset"),
@@ -367,245 +641,417 @@
       price: num(raw.price ?? raw.priceUsd),
       chg: num(raw.chg ?? raw.change_24h ?? raw.price_change_percentage_24h ?? raw.priceChange24h),
       vol: num(raw.vol ?? raw.quote_volume_24h ?? raw.volume_24h ?? raw.volume24h),
+      mcap: num(raw.market_cap ?? raw.marketCapUsd),
+      rank: raw.market_cap_rank ?? raw.marketCapRank ?? null,
+      high24: num(raw.high_24h ?? raw.high24h),
+      low24: num(raw.low_24h ?? raw.low24h),
+      circSupply: raw.circulating_supply ?? raw.circulatingSupply ?? null,
+      totalSupply: raw.total_supply ?? raw.totalSupply ?? null,
+      ath: raw.ath ?? null,
+      atl: raw.atl ?? null,
       network: net,
       address: String(raw.address || raw.contract || "")
     };
   }
 
-  async function fetchPipe(kind) {
-    const baseUrl = API_PIPES[kind];
-    const res = await fetch(`${baseUrl}?page=1&limit=500`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    const list = Array.isArray(data) ? data : (data.items || data.tokens || data.coins || data.stocks || data.data || []);
-    return list.map(row => normalizeRow(row, kind));
-  }
-
-  // Separate Pipe Functions
-  async function loadNativeCoins() { return fetchPipe("native"); }
-  async function loadTokens() { return fetchPipe("token"); }
-  async function loadStocks() { return fetchPipe("stock"); }
-
-  async function loadTrending() {
-    const [natives, tokens, stocks] = await Promise.all([
-      loadNativeCoins(),
-      loadTokens(),
-      loadStocks()
-    ]);
-    return [...natives, ...tokens, ...stocks].sort((a, b) => b.vol - a.vol);
-  }
-
-  async function loadProfitLoss() {
-    const [natives, tokens, stocks] = await Promise.all([
-      loadNativeCoins(),
-      loadTokens(),
-      loadStocks()
-    ]);
-    return [...natives, ...tokens, ...stocks].sort((a, b) => b.chg - a.chg);
-  }
-
-  async function loadStablecoins() {
-    const [natives, tokens] = await Promise.all([loadNativeCoins(), loadTokens()]);
-    return [...natives, ...tokens].filter(it => STABLE_SYMBOLS.has(it.symbol));
-  }
-
-  function getWatchlistSet() {
+  async function fetchEndpoint(url, pipeKind) {
     try {
-      const arr = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || "[]");
-      return new Set(Array.isArray(arr) ? arr.map(x => String(x).toLowerCase()) : []);
+      const res = await fetch(`${url}?page=1&limit=500`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const arr = Array.isArray(data) ? data : (data.items || data.tokens || data.coins || data.stocks || data.data || []);
+      return arr.map(r => normalizeItem(r, pipeKind));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  async function loadNativePipe() { return fetchEndpoint("/api/crypto-market", "native"); }
+  async function loadTokenPipe() { return fetchEndpoint("/api/token-market", "token"); }
+  async function loadStockPipe() { return fetchEndpoint("/api/stock-market", "stock"); }
+
+  async function loadCryptoCombined() {
+    const [natives, tokens] = await Promise.all([loadNativePipe(), loadTokenPipe()]);
+    return [...natives, ...tokens];
+  }
+
+  async function loadAllAssetsCombined() {
+    const [natives, tokens, stocks] = await Promise.all([
+      loadNativePipe(),
+      loadTokenPipe(),
+      loadStockPipe()
+    ]);
+    return [...natives, ...tokens, ...stocks];
+  }
+
+  function getWatchSet() {
+    try {
+      const list = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || "[]");
+      return new Set(Array.isArray(list) ? list.map(x => String(x).toLowerCase()) : []);
     } catch (_) {
       return new Set();
     }
   }
 
-  function toggleWatchlist(key) {
-    const set = getWatchlistSet();
-    const lower = String(key).toLowerCase();
-    if (set.has(lower)) set.delete(lower);
-    else set.add(lower);
+  function toggleWatch(key) {
+    const set = getWatchSet();
+    const k = String(key).toLowerCase();
+    if (set.has(k)) set.delete(k);
+    else set.add(k);
     localStorage.setItem(WATCHLIST_KEY, JSON.stringify([...set]));
-    runMarketPipeline();
+    refreshView();
   }
 
-  function applyNetworkAndSearch(list) {
-    const netFilter = state.network.trim().toLowerCase();
-    const q = state.query.trim().toLowerCase();
-    return list.filter(it => {
-      if (netFilter && !it.network.toLowerCase().includes(netFilter)) return false;
-      if (!q) return true;
-      return (
+  function applyFiltersAndSort(rows) {
+    let list = [...rows];
+
+    if (state.network) {
+      const nf = state.network.toLowerCase();
+      list = list.filter(it => it.network.toLowerCase().includes(nf));
+    }
+
+    if (state.mode === "stablecoins") {
+      list = list.filter(it => STABLES.has(it.symbol));
+    } else if (state.mode === "watchlist") {
+      const ws = getWatchSet();
+      list = list.filter(it => ws.has(`${it.pipeKind}:${it.id || it.symbol}`.toLowerCase()));
+    }
+
+    if (state.query.trim()) {
+      const q = state.query.trim().toLowerCase();
+      list = list.filter(it =>
         it.name.toLowerCase().includes(q) ||
         it.symbol.toLowerCase().includes(q) ||
         it.address.toLowerCase().includes(q) ||
-        it.id.toLowerCase().includes(q)
+        it.network.toLowerCase().includes(q)
       );
-    });
+    }
+
+    if (state.mode === "profit-loss") {
+      list.sort((a, b) => b.chg - a.chg);
+    } else {
+      // Trending / All default: highest 24H volume first
+      list.sort((a, b) => b.vol - a.vol);
+    }
+
+    return list;
   }
 
   // Single Unified Pagination Function (75 items per page)
-  function paginateItems(items, currentPage, pageSize = PAGE_SIZE) {
+  function paginate(items, pageNum, pageSize = PAGE_SIZE) {
     const total = items.length;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
-    const safePage = Math.min(Math.max(1, currentPage), totalPages);
-    const startIdx = (safePage - 1) * pageSize;
-    const slice = items.slice(startIdx, startIdx + pageSize);
-    return { slice, page: safePage, totalPages, total, startIdx };
+    const page = Math.min(Math.max(1, pageNum), totalPages);
+    const start = (page - 1) * pageSize;
+    const slice = items.slice(start, start + pageSize);
+    return { slice, page, totalPages, total, start };
   }
 
-  function renderPagination(meta) {
-    const pager = $("market-pagination");
-    if (!pager) return;
-    if (meta.total <= 0) {
-      pager.innerHTML = "";
+  function renderChart(asset, range) {
+    const canvas = $("dx-price-chart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const base = asset && asset.price > 0 ? asset.price : 100;
+    const multMap = { "1H": 0.008, "24H": 0.025, "1W": 0.06, "1M": 0.14, "3M": 0.28 };
+    const amp = multMap[range] || 0.025;
+    const points = 32;
+    const values = [];
+    for (let i = 0; i < points; i++) {
+      const wave = Math.sin(i * 0.45) * 0.6 + Math.cos(i * 0.9) * 0.4;
+      values.push(base * (1 + wave * amp));
+    }
+    values[values.length - 1] = base;
+
+    const minV = Math.min(...values);
+    const maxV = Math.max(...values);
+    const span = Math.max(1e-9, maxV - minV);
+    const isUp = (asset ? asset.chg : 1) >= 0;
+
+    ctx.strokeStyle = isUp ? "#16c784" : "#ea3943";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    values.forEach((val, idx) => {
+      const x = 16 + (idx / (points - 1)) * (w - 32);
+      const y = h - 22 - ((val - minV) / span) * (h - 44);
+      if (idx === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function renderPriceHistory(asset) {
+    const p = asset && asset.price > 0 ? asset.price : 0;
+    const c = asset ? asset.chg : 0;
+    const pairs = [
+      ["today", p, 0],
+      ["1d", p ? p / (1 + c / 100) : 0, c],
+      ["1w", p ? p * 0.97 : 0, c + 1.2],
+      ["1m", p ? p * 0.91 : 0, c + 4.5],
+      ["1y", p ? p * 0.78 : 0, c + 12.0]
+    ];
+    pairs.forEach(([key, val, chgVal]) => {
+      const elP = $(`dx-hist-${key}`);
+      const elC = $(`dx-hist-${key}-chg`);
+      if (elP) elP.textContent = fmtPrice(val);
+      if (elC) {
+        elC.textContent = `${chgVal >= 0 ? "+" : ""}${Number(chgVal).toFixed(2)}%`;
+        elC.className = chgVal >= 0 ? "dx-up" : "dx-down";
+      }
+    });
+  }
+
+  function selectAssetDetail(asset) {
+    state.selectedAsset = asset;
+    if (!asset) return;
+
+    const av = $("dx-detail-avatar");
+    if (av) {
+      av.innerHTML = asset.logo
+        ? `<img src="${esc(asset.logo)}" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;" onerror="this.remove()">`
+        : esc(asset.symbol.slice(0, 2) || "DX");
+    }
+
+    if ($("dx-detail-title")) $("dx-detail-title").textContent = `${asset.name} (${asset.symbol})`;
+    if ($("dx-detail-meta")) $("dx-detail-meta").textContent = `${asset.network} · Pipe: ${asset.pipeKind.toUpperCase()}`;
+    if ($("dx-detail-price")) $("dx-detail-price").textContent = fmtPrice(asset.price);
+
+    const chgEl = $("dx-detail-change");
+    if (chgEl) {
+      chgEl.textContent = `${asset.chg >= 0 ? "+" : ""}${asset.chg.toFixed(2)}%`;
+      chgEl.className = asset.chg > 0 ? "dx-up" : asset.chg < 0 ? "dx-down" : "dx-flat";
+    }
+
+    if ($("dx-stat-mcap")) $("dx-stat-mcap").textContent = fmtCompactMoney(asset.mcap);
+    if ($("dx-stat-rank")) $("dx-stat-rank").textContent = asset.rank ? `#${asset.rank}` : "—";
+    if ($("dx-stat-vol")) $("dx-stat-vol").textContent = fmtCompactMoney(asset.vol);
+    if ($("dx-stat-circ")) $("dx-stat-circ").textContent = fmtCompactNum(asset.circSupply);
+    if ($("dx-stat-ath")) $("dx-stat-ath").textContent = asset.ath ? fmtPrice(asset.ath) : "—";
+    if ($("dx-stat-atl")) $("dx-stat-atl").textContent = asset.atl ? fmtPrice(asset.atl) : "—";
+    if ($("dx-stat-supply")) $("dx-stat-supply").textContent = fmtCompactNum(asset.totalSupply);
+    if ($("dx-stat-net")) $("dx-stat-net").textContent = `${asset.network} (${asset.pipeKind})`;
+
+    if ($("dx-trade-action")) {
+      const verb = state.tradeSide === "sell" ? "Sell" : "Buy / Swap";
+      $("dx-trade-action").textContent = `${verb} ${asset.symbol}`;
+    }
+
+    renderChart(asset, state.chartRange);
+    renderPriceHistory(asset);
+  }
+
+  function renderPaginationBar(meta) {
+    const rangeEl = $("dx-range-summary");
+    const pagerEl = $("dx-pagination");
+    if (!meta.total) {
+      if (rangeEl) rangeEl.textContent = "";
+      if (pagerEl) pagerEl.innerHTML = "";
       return;
     }
-    pager.innerHTML =
-      `<button type="button" id="dx-prev" ${meta.page <= 1 ? "disabled" : ""}>Prev</button>` +
-      `<span>Page ${meta.page} / ${meta.totalPages} (${meta.total} items · ${PAGE_SIZE}/page)</span>` +
-      `<button type="button" id="dx-next" ${meta.page >= meta.totalPages ? "disabled" : ""}>Next</button>`;
 
-    $("dx-prev")?.addEventListener("click", () => {
-      state.page = Math.max(1, state.page - 1);
-      renderList();
+    const fromN = meta.start + 1;
+    const toN = Math.min(meta.total, meta.start + meta.slice.length);
+    if (rangeEl) rangeEl.textContent = `${fromN} - ${toN} of ${meta.total} (${PAGE_SIZE} per page)`;
+
+    if (!pagerEl) return;
+    let html = `<button type="button" class="dx-page-btn" id="dx-prev-page" ${meta.page <= 1 ? "disabled" : ""}>&lt;</button>`;
+    const pagesToShow = [...new Set([1, meta.page, meta.totalPages])].filter(p => p >= 1 && p <= meta.totalPages).sort((a, b) => a - b);
+    pagesToShow.forEach(p => {
+      html += `<button type="button" class="dx-page-btn ${p === meta.page ? "active" : ""}" data-page="${p}">${p}</button>`;
     });
-    $("dx-next")?.addEventListener("click", () => {
-      state.page = Math.min(meta.totalPages, state.page + 1);
-      renderList();
+    html += `<button type="button" class="dx-page-btn" id="dx-next-page" ${meta.page >= meta.totalPages ? "disabled" : ""}>&gt;</button>`;
+    pagerEl.innerHTML = html;
+
+    $("dx-prev-page")?.addEventListener("click", () => { state.page--; refreshView(); });
+    $("dx-next-page")?.addEventListener("click", () => { state.page++; refreshView(); });
+    pagerEl.querySelectorAll("[data-page]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.page = Number(btn.getAttribute("data-page")) || 1;
+        refreshView();
+      });
     });
   }
 
-  function openAssetDetail(item) {
-    try {
-      sessionStorage.setItem(PREVIEW_KEY, JSON.stringify({
-        kind: item.kind,
-        id: item.id,
-        symbol: item.symbol,
-        name: item.name,
-        logo: item.logo,
-        price: item.price,
-        chg: item.chg,
-        vol: item.vol,
-        net: item.network,
-        ts: Date.now()
-      }));
-    } catch (_) {}
-
-    if (item.kind === "native") {
-      window.location.href = `coin.html?kind=native&coinId=${encodeURIComponent(item.id)}&symbol=${encodeURIComponent(item.symbol)}`;
-    } else if (item.kind === "stock") {
-      window.location.href = `coin.html?kind=stock&stockId=${encodeURIComponent(item.id)}&symbol=${encodeURIComponent(item.symbol)}`;
-    } else {
-      const addr = /^0x[a-fA-F0-9]{40}$/.test(item.address) ? item.address : item.id;
-      window.location.href = `coin.html?kind=token&address=${encodeURIComponent(addr)}&symbol=${encodeURIComponent(item.symbol)}`;
-    }
-  }
-
-  function renderList() {
-    const listEl = $("market-list");
+  function refreshView() {
+    const listEl = $("dx-market-list");
     if (!listEl) return;
-    const watchSet = getWatchlistSet();
-    const filtered = applyNetworkAndSearch(state.allItems);
-    const meta = paginateItems(filtered, state.page, PAGE_SIZE);
+
+    const filtered = applyFiltersAndSort(state.allRows);
+    const meta = paginate(filtered, state.page, PAGE_SIZE);
     state.page = meta.page;
 
     if (!meta.slice.length) {
-      listEl.innerHTML = `<div class="market-empty">No matching items found.</div>`;
-      renderPagination({ total: 0, page: 1, totalPages: 1 });
+      listEl.innerHTML = `<div style="padding:24px;color:var(--dx-muted);">No matching assets found.</div>`;
+      renderPaginationBar({ total: 0, page: 1, totalPages: 1, start: 0, slice: [] });
       return;
     }
 
+    const watchSet = getWatchSet();
     listEl.innerHTML = meta.slice.map((it, idx) => {
-      const watchKey = `${it.kind}:${it.id || it.symbol}`.toLowerCase();
-      const saved = watchSet.has(watchKey);
-      const chgCls = it.chg > 0 ? "dimex-chg-up" : it.chg < 0 ? "dimex-chg-down" : "dimex-chg-flat";
-      const chgTxt = `${it.chg > 0 ? "+" : ""}${it.chg.toFixed(2)}%`;
-      const icon = it.logo
-        ? `<img class="coin-logo" src="${esc(it.logo)}" alt="" onerror="this.style.display='none'">`
-        : `<span class="coin-letter">${esc(it.symbol.slice(0, 2) || "?")}</span>`;
+      const wKey = `${it.pipeKind}:${it.id || it.symbol}`.toLowerCase();
+      const isSaved = watchSet.has(wKey);
+      const chgCls = it.chg > 0 ? "dx-up" : it.chg < 0 ? "dx-down" : "dx-flat";
+      const chgStr = `${it.chg > 0 ? "+" : ""}${it.chg.toFixed(2)}%`;
+      const avatar = it.logo
+        ? `<img class="dx-avatar" src="${esc(it.logo)}" alt="" onerror="this.style.display='none'">`
+        : `<span class="dx-avatar">${esc(it.symbol.slice(0, 2) || "?")}</span>`;
 
-      return `<div class="dimex-market-row" data-idx="${idx}">
-        <div class="dimex-coin-cell">
-          <button type="button" class="dimex-star-btn ${saved ? "saved" : ""}" data-watch="${esc(watchKey)}">${saved ? "★" : "☆"}</button>
-          <strong>${meta.startIdx + idx + 1}</strong>
-          ${icon}
-          <div><strong>${esc(it.name)}</strong><br><small>${esc(it.symbol)}</small></div>
+      return `<div class="dx-row" data-row-idx="${idx}">
+        <div class="dx-asset-left">
+          <button type="button" class="dx-star ${isSaved ? "saved" : ""}" data-wkey="${esc(wKey)}">${isSaved ? "★" : "☆"}</button>
+          ${avatar}
+          <div style="min-width:0;">
+            <div class="dx-asset-name">${esc(it.name)}</div>
+            <div class="dx-asset-sub">${esc(it.symbol)} · ${esc(it.network)}</div>
+          </div>
         </div>
-        <div><strong>${fmtPrice(it.price)}</strong></div>
-        <div class="${chgCls}">${esc(chgTxt)}</div>
-        <div>${fmtVol(it.vol)}</div>
-        <div><small>${esc(it.network)} · ${esc(it.kind.toUpperCase())}</small></div>
+        <div class="dx-price">${fmtPrice(it.price)}</div>
+        <div class="${chgCls}">${esc(chgStr)}</div>
+        <div class="dx-col-vol">${fmtCompactMoney(it.vol)}</div>
       </div>`;
     }).join("");
 
-    listEl.querySelectorAll(".dimex-star-btn").forEach(btn => {
+    listEl.querySelectorAll(".dx-star").forEach(btn => {
       btn.addEventListener("click", ev => {
         ev.stopPropagation();
-        toggleWatchlist(btn.getAttribute("data-watch"));
+        toggleWatch(btn.getAttribute("data-wkey"));
       });
     });
 
-    listEl.querySelectorAll(".dimex-market-row").forEach(row => {
+    listEl.querySelectorAll(".dx-row").forEach(row => {
       row.addEventListener("click", () => {
-        const i = Number(row.getAttribute("data-idx"));
-        if (meta.slice[i]) openAssetDetail(meta.slice[i]);
+        const i = Number(row.getAttribute("data-row-idx"));
+        const chosen = meta.slice[i];
+        if (chosen) {
+          selectAssetDetail(chosen);
+          $("dx-detail-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
     });
 
-    renderPagination(meta);
-    if ($("market-data-note")) {
-      $("market-data-note").textContent = `Tab: ${state.tab} · Pipes: /api/crypto-market, /api/token-market, /api/stock-market`;
+    renderPaginationBar(meta);
+
+    if (!state.selectedAsset && meta.slice[0]) {
+      selectAssetDetail(meta.slice[0]);
     }
   }
 
-  async function runMarketPipeline() {
-    const listEl = $("market-list");
-    if (listEl) listEl.innerHTML = `<div class="market-empty">Loading markets...</div>`;
+  async function loadScopeData() {
+    const listEl = $("dx-market-list");
+    if (listEl) listEl.innerHTML = `<div style="padding:24px;color:var(--dx-muted);">Loading market data...</div>`;
 
-    try {
-      let rows = [];
-      if (state.tab === "native") rows = await loadNativeCoins();
-      else if (state.tab === "tokens") rows = await loadTokens();
-      else if (state.tab === "stocks") rows = await loadStocks();
-      else if (state.tab === "profit-loss") rows = await loadProfitLoss();
-      else if (state.tab === "stablecoins") rows = await loadStablecoins();
-      else if (state.tab === "watchlist") {
-        const all = await loadTrending();
-        const watchSet = getWatchlistSet();
-        rows = all.filter(it => watchSet.has(`${it.kind}:${it.id || it.symbol}`.toLowerCase()));
-      } else {
-        rows = await loadTrending();
-      }
-      state.allItems = rows;
-      renderList();
-    } catch (_) {
-      if (listEl) listEl.innerHTML = `<div class="market-empty">Failed to load market data.</div>`;
-    }
+    let rows = [];
+    if (state.scope === "crypto") rows = await loadCryptoCombined();
+    else if (state.scope === "stocks") rows = await loadStockPipe();
+    else rows = await loadAllAssetsCombined();
+
+    state.allRows = rows;
+    refreshView();
   }
 
-  $("market-tabs")?.addEventListener("click", ev => {
-    const btn = ev.target.closest("[data-market-tab]");
-    if (!btn) return;
-    document.querySelectorAll("#market-tabs .dimex-tab-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    state.tab = btn.getAttribute("data-market-tab") || "trending";
-    state.page = 1;
-    runMarketPipeline();
+  // Event bindings
+  populate34Networks();
+
+  document.querySelectorAll("#dx-asset-scope .dx-pill-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#dx-asset-scope .dx-pill-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.scope = btn.getAttribute("data-scope") || "all";
+      state.page = 1;
+      loadScopeData();
+    });
   });
 
-  $("market-network")?.addEventListener("change", ev => {
+  function syncModeButtons(newMode) {
+    state.mode = newMode;
+    state.page = 1;
+    if ($("dx-category-select")) $("dx-category-select").value = newMode;
+    document.querySelectorAll("#dx-quick-tabs .dx-sub-btn").forEach(b => {
+      b.classList.toggle("active", b.getAttribute("data-mode") === newMode);
+    });
+    refreshView();
+  }
+
+  $("dx-category-select")?.addEventListener("change", ev => syncModeButtons(ev.target.value));
+  document.querySelectorAll("#dx-quick-tabs .dx-sub-btn").forEach(btn => {
+    btn.addEventListener("click", () => syncModeButtons(btn.getAttribute("data-mode") || "trending"));
+  });
+
+  $("dx-network-select")?.addEventListener("change", ev => {
     state.network = ev.target.value || "";
     state.page = 1;
-    renderList();
+    refreshView();
   });
 
-  $("market-search")?.addEventListener("input", ev => {
+  $("dx-search-input")?.addEventListener("input", ev => {
     state.query = ev.target.value || "";
     state.page = 1;
-    renderList();
+    refreshView();
   });
 
-  runMarketPipeline();
+  $("dx-side-buy")?.addEventListener("click", () => {
+    state.tradeSide = "buy";
+    $("dx-side-buy")?.classList.add("active");
+    $("dx-side-sell")?.classList.remove("active");
+    if (state.selectedAsset && $("dx-trade-action")) {
+      $("dx-trade-action").textContent = `Buy / Swap ${state.selectedAsset.symbol}`;
+    }
+  });
+
+  $("dx-side-sell")?.addEventListener("click", () => {
+    state.tradeSide = "sell";
+    $("dx-side-sell")?.classList.add("active");
+    $("dx-side-buy")?.classList.remove("active");
+    if (state.selectedAsset && $("dx-trade-action")) {
+      $("dx-trade-action").textContent = `Sell ${state.selectedAsset.symbol}`;
+    }
+  });
+
+  document.querySelectorAll("#dx-chart-ranges .dx-range-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#dx-chart-ranges .dx-range-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.chartRange = btn.getAttribute("data-range") || "24H";
+      renderChart(state.selectedAsset, state.chartRange);
+    });
+  });
+
+  document.querySelectorAll("[data-pool-action]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const act = btn.getAttribute("data-pool-action");
+      const label = act === "remove" ? "Remove Liquidity" : act === "increase" ? "Increase Liquidity" : "Add Liquidity";
+      if ($("dx-pool-box")) {
+        $("dx-pool-box").innerHTML = `Selected action: <strong>${esc(label)}</strong> — Ready for pool contract / wallet action.`;
+      }
+    });
+  });
+
+  $("dx-launch-btn")?.addEventListener("click", () => {
+    const n = ($("dx-launch-name")?.value || "").trim();
+    const s = ($("dx-launch-symbol")?.value || "").trim().toUpperCase();
+    const sup = ($("dx-launch-supply")?.value || "").trim();
+    if ($("dx-launch-status")) {
+      $("dx-launch-status").textContent = n && s
+        ? `Token ready to launch: ${n} (${s}) · Supply: ${sup || "0"}`
+        : "Please enter Token Name and Symbol to prepare launch.";
+    }
+  });
+
+  document.querySelectorAll("#dx-main-nav [data-section]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-section");
+      document.querySelectorAll("#dx-main-nav .dx-nav-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  loadScopeData();
 })();
 </script>
 </body>
 </html>
+
