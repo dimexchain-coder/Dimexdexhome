@@ -1,453 +1,782 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DimeX Exchange — Markets & Swap</title>
+  <title>DimeXSwap — Trade Beyond Boundaries</title>
   <style>
     :root {
-      --bg: #0b0f17;
-      --panel: #121826;
-      --panel-2: #182133;
-      --border: #25324b;
-      --text: #eef3fc;
-      --muted: #93a4c3;
-      --accent: #f5b942;
-      --buy: #16a34a;
-      --buy-hover: #15803d;
-      --sell: #dc2626;
-      --sell-hover: #b91c1c;
-      --chip: #1c273d;
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --green: #00b85c;
+      --green-dark: #00994d;
+      --red: #ef4444;
+      --red-dark: #dc2626;
+      --amber: #f59e0b;
+      --pill-bg: #ffffff;
+      --shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.45; }
+    body.dark {
+      --bg: #0b0f17;
+      --surface: #121826;
+      --surface-2: #182133;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #25324b;
+      --pill-bg: #121826;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
 
-    /* Top Header & Network Bar */
-    .topbar {
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 18px;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+    /* Top Header */
+    .header {
       position: sticky;
       top: 0;
-      z-index: 40;
+      z-index: 30;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+
+    .header-top {
+      max-width: 1120px;
+      margin: 0 auto;
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       align-items: center;
       justify-content: space-between;
-    }
-
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
-    .brand img { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; border: 1px solid var(--accent); background: #0d1629; }
-    .brand span small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
-
-    .network-strip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .net-btn {
-      background: var(--chip);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 7px 13px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: 0.15s;
-    }
-    .net-btn:hover { border-color: var(--accent); }
-    .net-btn.active { background: var(--accent); color: #111; border-color: var(--accent); }
-
-    .currency-wrap { display: flex; align-items: center; gap: 8px; }
-    .currency-select {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 7px 11px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .container { max-width: 1380px; margin: 0 auto; padding: 18px; display: grid; gap: 18px; }
-
-    /* Selected Coin Graph + Detail + Buy/Sell Stage */
-    .stage {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      display: grid;
-      grid-template-columns: 1.55fr 1fr;
-      gap: 18px;
-    }
-    @media (max-width: 980px) { .stage { grid-template-columns: 1fr; } }
-
-    .coin-hero { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
-    .coin-identity { display: flex; align-items: center; gap: 12px; }
-    .coin-identity img { width: 46px; height: 46px; border-radius: 50%; object-fit: contain; background: var(--panel-2); border: 1px solid var(--border); }
-    .coin-price-box { text-align: right; }
-    .live-price { font-size: 24px; font-weight: 800; color: var(--accent); }
-    .pnl-tag { font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-top: 2px; }
-    .pos { background: rgba(22, 163, 74, 0.18); color: #4ade80; }
-    .neg { background: rgba(220, 38, 38, 0.18); color: #f87171; }
-
-    .chart-box {
-      background: #0d1320;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 14px;
-    }
-    canvas { width: 100%; height: 220px; display: block; }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 10px;
-      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
-    .detail-card {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
-    .detail-card label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; }
-    .detail-card strong { font-size: 14px; font-weight: 700; }
 
-    .trade-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-buy, .btn-sell {
-      flex: 1;
-      min-width: 140px;
-      padding: 12px 16px;
+    .brand-left { display: flex; align-items: center; gap: 10px; }
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #d4af37;
+      cursor: pointer;
+    }
+
+    .wallet-pill {
+      background: var(--green);
+      color: #ffffff;
       border: none;
       border-radius: 10px;
-      font-size: 15px;
+      padding: 9px 14px;
       font-weight: 700;
-      color: #fff;
+      font-size: 13px;
       cursor: pointer;
-      transition: 0.15s;
     }
-    .btn-buy { background: var(--buy); }
-    .btn-buy:hover { background: var(--buy-hover); }
-    .btn-sell { background: var(--sell); }
-    .btn-sell:hover { background: var(--sell-hover); }
 
-    /* Swap Drawer / Box */
-    .swap-panel {
-      background: var(--panel-2);
+    .header-controls { display: flex; align-items: center; gap: 8px; }
+
+    .mode-btn {
+      background: var(--pill-bg);
+      color: var(--text);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 14px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .swap-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .swap-tab {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
+
+    .cur-select {
+      background: var(--pill-bg);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .nav-tabs {
+      max-width: 1120px;
+      margin: 12px auto 0;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 2px;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-item.active { color: var(--green); border-bottom-color: var(--green); }
+
+    /* Ticker Strip */
+    .ticker-bar {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 10px 16px;
+      overflow-x: auto;
+    }
+    .ticker-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .ticker-item { cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .ticker-item span.muted { color: var(--muted); font-weight: 600; }
+
+    /* Main Container */
+    .page { max-width: 1120px; margin: 0 auto; padding: 24px 16px 60px; }
+    .hidden { display: none !important; }
+
+    /* Hero / Home View */
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid var(--green);
+      color: var(--green);
+      border-radius: 999px;
+      padding: 7px 18px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .hero-title {
+      font-size: clamp(34px, 6vw, 52px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .hero-title .accent { color: var(--green); }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 540px;
+      margin-bottom: 26px;
+    }
+
+    .hero-cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 36px; }
+    .btn-primary-green {
+      background: var(--green);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
     }
-    .swap-tab.buy-active { background: var(--buy); border-color: var(--buy); color: #fff; }
-    .swap-tab.sell-active { background: var(--sell); border-color: var(--sell); color: #fff; }
+    .btn-primary-green:hover { background: var(--green-dark); }
 
-    .swap-field {
-      background: var(--panel);
+    .btn-secondary-outline {
+      background: var(--surface);
+      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
     }
-    .swap-field-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .swap-row { display: flex; gap: 8px; align-items: center; }
-    .swap-row input, .swap-row select {
-      background: transparent;
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding-top: 12px;
+    }
+    .stat-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .stat-lbl { font-size: 14px; color: var(--muted); }
+
+    /* Market Watch View */
+    .mw-heading { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .mw-sub { font-size: 15px; color: var(--muted); margin-bottom: 22px; }
+
+    .field-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .net-select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .cat-tabs {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .cat-tab {
+      background: none;
       border: none;
       color: var(--text);
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 600;
+      padding: 10px 4px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+    }
+    .cat-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+    .search-box {
       width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 18px;
       outline: none;
     }
-    .swap-row select option { background: var(--panel); color: var(--text); }
+    .search-box:focus { border-color: var(--green); }
 
-    .swap-submit {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 800;
-      color: #fff;
+    .coin-list { display: flex; flex-direction: column; }
+    .coin-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 8px;
+      border-bottom: 1px solid var(--border);
       cursor: pointer;
-    }
-    .swap-status { font-size: 12px; color: var(--muted); min-height: 18px; }
-
-    /* Search & Category Functions */
-    .controls-bar {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      display: grid;
       gap: 12px;
     }
-    .search-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-    }
-    .search-input:focus { border-color: var(--accent); }
+    .coin-row:hover { background: var(--surface-2); border-radius: 10px; }
 
-    .fn-tabs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
-    .fn-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .fn-btn {
-      background: var(--panel-2);
-      color: var(--text);
+    .coin-row-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .star-btn { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+    .coin-rank { width: 22px; font-weight: 700; font-size: 15px; text-align: center; }
+    .coin-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--surface-2);
       border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .coin-sym { font-size: 17px; font-weight: 800; }
+    .coin-name { font-size: 13px; color: var(--muted); }
+    .coin-vol { font-size: 12px; color: #2563eb; font-weight: 600; margin-top: 2px; }
+
+    .coin-row-right { text-align: right; flex-shrink: 0; }
+    .coin-price { font-size: 16px; font-weight: 800; }
+    .chg-pos { color: var(--green); font-size: 13px; font-weight: 700; }
+    .chg-neg { color: var(--red); font-size: 13px; font-weight: 700; }
+
+    /* Coin Detail View (Only visible when a coin is clicked) */
+    .back-link {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
       padding: 8px 14px;
-      border-radius: 9px;
+      border-radius: 10px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
+      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .fn-btn.active { background: var(--accent); color: #111; border-color: var(--accent); }
 
-    /* Market Table */
-    .table-wrap {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow-x: auto;
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
     }
-    table { width: 100%; border-collapse: collapse; min-width: 760px; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
-    th { color: var(--muted); font-size: 12px; text-transform: uppercase; background: var(--panel-2); }
-    tr.coin-row { cursor: pointer; transition: 0.12s; }
-    tr.coin-row:hover { background: rgba(245, 185, 66, 0.08); }
-    tr.coin-row.selected { background: rgba(245, 185, 66, 0.14); }
-    .t-coin { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-    .t-coin img { width: 28px; height: 28px; border-radius: 50%; object-fit: contain; background: var(--panel-2); }
-    .mini-btns { display: flex; gap: 6px; }
-    .mini-buy, .mini-sell {
-      padding: 5px 10px;
+
+    .detail-price { font-size: 32px; font-weight: 800; margin: 6px 0 4px; }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    canvas.detail-canvas { width: 100%; height: 240px; display: block; }
+
+    .tf-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+    .tf-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tf-btn.active { border-color: #2563eb; color: #2563eb; background: rgba(37, 99, 235, 0.08); }
+
+    .buy-sell-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .action-buy {
+      background: var(--green);
+      color: #ffffff;
       border: none;
-      border-radius: 6px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .action-buy:hover { background: var(--green-dark); }
+    .action-sell {
+      background: var(--red);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .action-sell:hover { background: var(--red-dark); }
+
+    .info-section { margin-bottom: 22px; }
+    .info-section-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      gap: 12px;
+    }
+    .info-row span.lbl { color: var(--muted); font-weight: 600; }
+    .info-row strong.val { font-weight: 700; text-align: right; word-break: break-all; }
+
+    .copy-btn {
+      background: #2563eb;
       color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
-    .mini-buy { background: var(--buy); }
-    .mini-sell { background: var(--sell); }
+
+    /* Swap Modal (Only opens on Buy/Sell click) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 60;
+    }
+    .swap-modal {
+      width: 100%;
+      max-width: 440px;
+      background: #141a29;
+      color: #f8fafc;
+      border: 1px solid #263149;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+    .modal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .modal-close {
+      background: #1e273d;
+      color: #cbd5e1;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #0e1320;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .mode-switch button {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 9px;
+      border-radius: 9px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mode-switch button.active { background: var(--amber); color: #111827; }
+
+    .swap-card {
+      background: #1b2336;
+      border: 1px solid #28344f;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .swap-card-head { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+    .swap-card-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .swap-card-main select {
+      background: #111726;
+      color: #fff;
+      border: 1px solid #2d3b59;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .swap-card-main input {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: right;
+      width: 100%;
+      outline: none;
+    }
+
+    .flip-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #232e47;
+      color: #fff;
+      border: 1px solid #334155;
+      margin: -4px auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .swap-exec-btn {
+      width: 100%;
+      background: #252f45;
+      color: #e2e8f0;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .swap-exec-btn.buy-btn { background: var(--green); color: #fff; }
+    .swap-exec-btn.sell-btn { background: var(--red); color: #fff; }
+
+    .meta-box {
+      background: #182032;
+      border: 1px solid #26324d;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+    }
+    .meta-line { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .meta-line:last-child { margin-bottom: 0; }
+    .meta-foot {
+      background: #141b2b;
+      border: 1px solid #26324d;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* Wallet & Earn Cards */
+    .panel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- TOP HEADER: NETWORKS & CURRENCY -->
-  <header class="topbar">
-    <div class="brand">
-      <img src="https://avatars.githubusercontent.com/u/344742707?s=400&u=0f7650d8ff7c488797867a1ea945d95f2fe6ead4&v=4" alt="DimeX" />
-      <span>DimeX Exchange <small>Chain ID: 1723 • DMXC</small></span>
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="header">
+    <div class="header-top">
+      <div class="brand-left">
+        <img
+          class="brand-logo"
+          src="https://avatars.githubusercontent.com/u/344742707?s=400&u=0f7650d8ff7c488797867a1ea945d95f2fe6ead4&v=4"
+          alt="DimeX"
+          onclick="showView('home')"
+        />
+        <button class="wallet-pill" onclick="showView('wallet')">0x88A6...372B</button>
+      </div>
+
+      <div class="header-controls">
+        <button class="mode-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark mode</button>
+        <select class="cur-select" id="currencySelect" onchange="changeCurrency(this.value)">
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="JPY">JPY (¥)</option>
+          <option value="AED">AED (د.إ)</option>
+          <option value="SGD">SGD (S$)</option>
+          <option value="CAD">CAD (C$)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="CNY">CNY (¥)</option>
+        </select>
+      </div>
     </div>
 
-    <div class="network-strip" id="networkBar">
-      <button class="net-btn active" data-net="ALL" onclick="selectNetwork('ALL')">All Networks</button>
-      <button class="net-btn" data-net="DIMEX" onclick="selectNetwork('DIMEX')">DimeX Chain</button>
-      <button class="net-btn" data-net="QOMX" onclick="selectNetwork('QOMX')">QOMX Chain</button>
-      <button class="net-btn" data-net="BSC" onclick="selectNetwork('BSC')">BNB Chain</button>
-      <button class="net-btn" data-net="ETH" onclick="selectNetwork('ETH')">Ethereum</button>
-      <button class="net-btn" data-net="SOL" onclick="selectNetwork('SOL')">Solana</button>
-    </div>
-
-    <div class="currency-wrap">
-      <label for="currencySelect" style="font-size:12px;color:var(--muted);">Currency:</label>
-      <select id="currencySelect" class="currency-select" onchange="changeCurrency(this.value)">
-        <option value="USD">USD ($)</option>
-        <option value="INR">INR (₹)</option>
-        <option value="EUR">EUR (€)</option>
-        <option value="GBP">GBP (£)</option>
-        <option value="JPY">JPY (¥)</option>
-        <option value="AED">AED (د.إ)</option>
-        <option value="SGD">SGD (S$)</option>
-        <option value="CAD">CAD (C$)</option>
-        <option value="AUD">AUD (A$)</option>
-        <option value="CNY">CNY (¥)</option>
-      </select>
-    </div>
+    <nav class="nav-tabs">
+      <button class="nav-item" id="nav-markets" onclick="showView('markets')">📈 Markets</button>
+      <button class="nav-item" id="nav-trade" onclick="openQuickSwap('BUY')">📊 Trade</button>
+      <button class="nav-item" id="nav-swap" onclick="openQuickSwap('BUY')">⇄ Swap</button>
+      <button class="nav-item" id="nav-earn" onclick="showView('earn')">⇅ Earn</button>
+      <button class="nav-item" id="nav-wallet" onclick="showView('wallet')">✦ My Wallet</button>
+    </nav>
   </header>
 
-  <main class="container">
+  <!-- LIVE TICKER BAR -->
+  <div class="ticker-bar">
+    <div class="ticker-inner" id="tickerInner"></div>
+  </div>
 
-    <!-- GRAPH + COIN DETAILS + BUY/SELL + SWAP -->
-    <section class="stage">
+  <!-- VIEW 1: HOME / LANDING (Matches dimexswap.com screenshot) -->
+  <section class="page" id="view-home">
+    <div class="hero-badge">THE NEXT GENERATION HYBRID EXCHANGE</div>
+    <h1 class="hero-title">
+      Trade Beyond<br />
+      <span class="accent">Boundaries.</span>
+    </h1>
+    <p class="hero-sub">
+      One platform. Multiple blockchains. Unlimited trading possibilities.
+    </p>
+
+    <div class="hero-cta-row">
+      <button class="btn-primary-green" onclick="showView('markets')">Explore Markets</button>
+      <button class="btn-secondary-outline" onclick="showView('wallet')">My Wallet</button>
+    </div>
+
+    <div class="stats-grid">
       <div>
-        <div class="coin-hero">
-          <div class="coin-identity">
-            <img id="heroLogo" src="" alt="Coin Logo" />
-            <div>
-              <h2 id="heroName" style="font-size:20px;">Select Coin</h2>
-              <small id="heroMeta" style="color:var(--muted);"></small>
-            </div>
-          </div>
-          <div class="coin-price-box">
-            <div class="live-price" id="heroPrice">$0.00</div>
-            <span class="pnl-tag pos" id="heroPnl">+0.00% (24h)</span>
-          </div>
-        </div>
+        <div class="stat-num">50+</div>
+        <div class="stat-lbl">Coin Groups Planned</div>
+      </div>
+      <div>
+        <div class="stat-num">Multi-chain</div>
+        <div class="stat-lbl">Hybrid Ecosystem</div>
+      </div>
+      <div>
+        <div class="stat-num">24/7</div>
+        <div class="stat-lbl">Trading Platform</div>
+      </div>
+    </div>
+  </section>
 
-        <div class="chart-box">
-          <canvas id="priceChart" width="760" height="220"></canvas>
-        </div>
+  <!-- VIEW 2: MARKET WATCH (Network dropdown + Tabs + Search + Coin list) -->
+  <section class="page hidden" id="view-markets">
+    <h2 class="mw-heading">Market Watch</h2>
+    <p class="mw-sub">Explore digital assets across supported networks</p>
 
-        <div class="detail-grid">
-          <div class="detail-card">
-            <label>Rate (Current)</label>
-            <strong id="detailRate">-</strong>
-          </div>
-          <div class="detail-card">
-            <label>Market Cap</label>
-            <strong id="detailMcap">-</strong>
-          </div>
-          <div class="detail-card">
-            <label>Your Balance</label>
-            <strong id="detailBalance">-</strong>
-          </div>
-          <div class="detail-card">
-            <label>Profit / Loss Watch</label>
-            <strong id="detailPnl">-</strong>
-          </div>
-          <div class="detail-card">
-            <label>Network & Class</label>
-            <strong id="detailNetClass">-</strong>
-          </div>
-          <div class="detail-card">
-            <label>Fixed / Earn APR</label>
-            <strong id="detailApr">-</strong>
-          </div>
-        </div>
+    <label class="field-label" for="networkSelect">Network</label>
+    <select class="net-select" id="networkSelect" onchange="changeNetwork(this.value)"></select>
 
-        <div class="trade-actions">
-          <button class="btn-buy" onclick="openSwap('BUY')">Buy (Green)</button>
-          <button class="btn-sell" onclick="openSwap('SELL')">Sell (Red)</button>
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-tab active" data-cat="trending" onclick="changeCategory('trending')">Trending</button>
+      <button class="cat-tab" data-cat="native" onclick="changeCategory('native')">Native Coins</button>
+      <button class="cat-tab" data-cat="stocks" onclick="changeCategory('stocks')">Stocks</button>
+      <button class="cat-tab" data-cat="tokens" onclick="changeCategory('tokens')">Tokens</button>
+      <button class="cat-tab" data-cat="top" onclick="changeCategory('top')">Top Coins</button>
+    </div>
+
+    <input
+      type="text"
+      class="search-box"
+      id="searchInput"
+      placeholder="Search coin name, symbol or contract address"
+      oninput="renderCoinList()"
+    />
+
+    <div class="coin-list" id="coinList"></div>
+  </section>
+
+  <!-- VIEW 3: COIN DETAIL (Opened ONLY when a coin is clicked) -->
+  <section class="page hidden" id="view-detail"></section>
+
+  <!-- VIEW 4: MY WALLET -->
+  <section class="page hidden" id="view-wallet">
+    <button class="back-link" onclick="showView('home')">← Back</button>
+    <div class="panel-card">
+      <h2 style="margin-bottom:6px;">My Wallet</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:14px;">Address: 0x88A6...372B • DimeX Chain (1723)</p>
+      <div id="walletBalances"></div>
+    </div>
+  </section>
+
+  <!-- VIEW 5: EARN -->
+  <section class="page hidden" id="view-earn">
+    <button class="back-link" onclick="showView('markets')">← Back to Markets</button>
+    <div class="panel-card">
+      <h2 style="margin-bottom:6px;">DimeX Earn</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Fixed &amp; Flexible yield pools across supported assets</p>
+      <div id="earnList"></div>
+    </div>
+  </section>
+
+  <!-- SWAP MODAL (Opened ONLY when Buy or Sell button is clicked) -->
+  <div class="modal-backdrop hidden" id="swapModal">
+    <div class="swap-modal" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <div>
+          <h3 id="modalTitle" style="font-size:20px;font-weight:800;">Swap Token</h3>
+          <p style="font-size:12px;color:#94a3b8;margin-top:2px;">Internal account or External wallet swap</p>
+        </div>
+        <button class="modal-close" onclick="closeSwapModal()">✕</button>
+      </div>
+
+      <div class="mode-switch">
+        <button id="modeInternal" class="active" onclick="setAccountMode('Internal')">Internal</button>
+        <button id="modeExternal" onclick="setAccountMode('External')">External</button>
+      </div>
+
+      <div class="swap-card">
+        <div class="swap-card-head">
+          <span>Pay</span>
+          <span id="modalPayBal" style="color:#f59e0b;font-weight:700;">0.00 MAX</span>
+        </div>
+        <div class="swap-card-main">
+          <select id="modalPaySelect" onchange="calcModalSwap()"></select>
+          <input id="modalPayInput" type="number" step="any" placeholder="Enter Amount" oninput="calcModalSwap()" />
         </div>
       </div>
 
-      <!-- SWAP BOX -->
-      <aside class="swap-panel" id="swapBox">
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <h3 style="font-size:16px;">Instant Swap</h3>
-            <span id="swapModeBadge" style="font-size:12px;font-weight:700;color:#4ade80;">BUY MODE</span>
-          </div>
+      <div class="flip-circle" onclick="flipModalPair()" title="Switch pair">↑↓</div>
 
-          <div class="swap-tabs">
-            <button id="tabBuy" class="swap-tab buy-active" onclick="setSwapSide('BUY')">BUY</button>
-            <button id="tabSell" class="swap-tab" onclick="setSwapSide('SELL')">SELL</button>
-          </div>
-
-          <div class="swap-field" style="margin-top:12px;">
-            <div class="swap-field-top">
-              <span id="payLabel">You Pay</span>
-              <span id="payBal">Balance: 0.00</span>
-            </div>
-            <div class="swap-row">
-              <input id="payAmount" type="number" step="any" value="100" oninput="calculateSwap()" />
-              <select id="payAsset" onchange="calculateSwap()"></select>
-            </div>
-          </div>
-
-          <div style="text-align:center;margin:8px 0;">
-            <button class="net-btn" onclick="flipSwapAssets()">⇅ Switch Pair</button>
-          </div>
-
-          <div class="swap-field">
-            <div class="swap-field-top">
-              <span id="receiveLabel">You Receive</span>
-              <span id="receiveBal">Rate: -</span>
-            </div>
-            <div class="swap-row">
-              <input id="receiveAmount" type="text" readonly value="0.00" />
-              <select id="receiveAsset" onchange="calculateSwap()"></select>
-            </div>
-          </div>
+      <div class="swap-card">
+        <div class="swap-card-head">
+          <span>Receive</span>
+          <span id="modalRecBal">0.00</span>
         </div>
-
-        <div>
-          <div class="swap-status" id="swapStatus">Ready to swap on selected network.</div>
-          <button id="swapSubmitBtn" class="swap-submit" style="background:var(--buy);margin-top:8px;" onclick="executeSwap()">
-            Swap Now
-          </button>
+        <div class="swap-card-main">
+          <select id="modalRecSelect" onchange="calcModalSwap()"></select>
+          <input id="modalRecInput" type="text" readonly value="0" />
         </div>
-      </aside>
-    </section>
-
-    <!-- SEARCH + CATEGORY FUNCTIONS -->
-    <section class="controls-bar">
-      <input
-        id="searchInput"
-        class="search-input"
-        type="text"
-        placeholder="Search coin name, symbol, or contract address..."
-        oninput="renderMarkets()"
-      />
-
-      <div class="fn-tabs">
-        <div class="fn-group" id="fnButtons">
-          <button class="fn-btn active" data-fn="trending" onclick="selectFunction('trending')">Trending</button>
-          <button class="fn-btn" data-fn="native" onclick="selectFunction('native')">Native Token</button>
-          <button class="fn-btn" data-fn="stocks" onclick="selectFunction('stocks')">Stocks</button>
-          <button class="fn-btn" data-fn="pnl" onclick="selectFunction('pnl')">Profit & Loss Watching</button>
-          <button class="fn-btn" data-fn="all" onclick="selectFunction('all')">All (Up to 75)</button>
-        </div>
-        <span id="marketCount" style="font-size:12px;color:var(--muted);font-weight:600;">Showing 0 coins</span>
       </div>
-    </section>
 
-    <!-- MARKET LIST TABLE -->
-    <section class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Coin</th>
-            <th>Network</th>
-            <th>Rate</th>
-            <th>24h P&amp;L</th>
-            <th>Market Cap</th>
-            <th>Balance</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="marketBody"></tbody>
-      </table>
-    </section>
+      <button class="swap-exec-btn" id="modalExecBtn" onclick="runModalSwap()">Swap</button>
 
-  </main>
+      <div class="meta-box">
+        <div class="meta-line">
+          <span style="color:#94a3b8;">Mode</span>
+          <strong id="metaMode" style="color:#f59e0b;">BUY • dimex</strong>
+        </div>
+        <div class="meta-line">
+          <span style="color:#94a3b8;">Provider</span>
+          <strong>DimeX Instant ▾</strong>
+        </div>
+        <div class="meta-line">
+          <span style="color:#94a3b8;">Slippage</span>
+          <strong>1%</strong>
+        </div>
+        <div class="meta-foot" id="modalStatusText">Internal account selected. Ready to swap.</div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // 1. Separate API endpoints (replace with your own endpoints when ready)
-    const API_ENDPOINTS = {
-      allMarkets: "",     // e.g. "https://api.dimexchain.tech/markets?limit=75"
-      trending: "",       // e.g. "https://api.dimexchain.tech/trending"
-      native: "",         // e.g. "https://api.dimexchain.tech/native"
-      stocks: "",         // e.g. "https://api.dimexchain.tech/stocks"
-      pnlWatch: "",       // e.g. "https://api.dimexchain.tech/pnl-watch"
-      currencyRates: ""   // e.g. "https://api.dimexchain.tech/currencies"
+    // Separate API Endpoints (plug your live API URLs here)
+    const API_URLS = {
+      networks: "",
+      trending: "",
+      native: "",
+      stocks: "",
+      tokens: "",
+      topCoins: "",
+      currencies: ""
     };
 
-    // 2. World currencies & symbols
+    // 34 Networks List
+    const NETWORKS = [
+      { id: "ALL", name: "All Networks" },
+      { id: "dimex", name: "DimeX Chain (DMXC)" },
+      { id: "ethereum", name: "Ethereum" },
+      { id: "bsc", name: "BNB Smart Chain" },
+      { id: "polygon", name: "Polygon" },
+      { id: "solana", name: "Solana" },
+      { id: "arbitrum", name: "Arbitrum One" },
+      { id: "optimism", name: "OP Mainnet" },
+      { id: "base", name: "Base" },
+      { id: "avalanche", name: "Avalanche C-Chain" },
+      { id: "tron", name: "TRON" },
+      { id: "qomx", name: "QOMX Chain" },
+      { id: "fantom", name: "Fantom" },
+      { id: "cronos", name: "Cronos" },
+      { id: "gnosis", name: "Gnosis" },
+      { id: "celo", name: "Celo" },
+      { id: "moonbeam", name: "Moonbeam" },
+      { id: "moonriver", name: "Moonriver" },
+      { id: "kava", name: "Kava EVM" },
+      { id: "linea", name: "Linea" },
+      { id: "scroll", name: "Scroll" },
+      { id: "zksync", name: "zkSync Era" },
+      { id: "mantle", name: "Mantle" },
+      { id: "blast", name: "Blast" },
+      { id: "manta", name: "Manta Pacific" },
+      { id: "metis", name: "Metis" },
+      { id: "aurora", name: "Aurora" },
+      { id: "harmony", name: "Harmony" },
+      { id: "opbnb", name: "opBNB" },
+      { id: "polygon_zkevm", name: "Polygon zkEVM" },
+      { id: "zetachain", name: "ZetaChain" },
+      { id: "astar", name: "Astar" },
+      { id: "ronin", name: "Ronin" },
+      { id: "berachain", name: "Berachain" }
+    ];
+
+    // World Currencies
     const CURRENCIES = {
       USD: { symbol: "$", rate: 1 },
       INR: { symbol: "₹", rate: 84.5 },
@@ -461,342 +790,444 @@
       CNY: { symbol: "¥", rate: 7.22 }
     };
 
-    // 3. Base model coins (from your JSON + DimeX Chain)
-    const BASE_COINS = [
-      { id: "dmxc", symbol: "DMXC", name: "DimeX Chain", network: "DIMEX", class: "native", trending: true, priceUsd: 1.45, pnlPct: 12.4, mcapUsd: 145000000, balance: 2500, apr: "22% Fixed", logo: "https://avatars.githubusercontent.com/u/344742707?s=400&u=0f7650d8ff7c488797867a1ea945d95f2fe6ead4&v=4" },
-      { id: "btcw", symbol: "BTCw", name: "Bitcoin Swap", network: "QOMX", class: "native", trending: true, priceUsd: 60551.13908958, pnlPct: 3.85, mcapUsd: 1211022781791, balance: 0.15, apr: "18% - 20%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "usdc", symbol: "USDC", name: "USD Coin", network: "QOMX", class: "stable", trending: true, priceUsd: 1.0, pnlPct: 0.02, mcapUsd: 38500000000, balance: 1200, apr: "24.87% - 26.87%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "ethw", symbol: "ETHw", name: "Ethereum Price Tracker", network: "ETH", class: "crypto", trending: true, priceUsd: 1703.54, pnlPct: -1.42, mcapUsd: 204424800000, balance: 1.2, apr: "18% - 20%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "bnbw", symbol: "BNBw", name: "BNB Price Tracker", network: "BSC", class: "crypto", trending: true, priceUsd: 554.475, pnlPct: 2.15, mcapUsd: 80398875000, balance: 4.5, apr: "14.62% - 16.76%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "xrpc", symbol: "XRPw", name: "XRP Price Tracker", network: "QOMX", class: "crypto", trending: false, priceUsd: 0.9549, pnlPct: -2.91, mcapUsd: 53474400000, balance: 850, apr: "15.37% - 18.08%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "solw", symbol: "SOLw", name: "Solana Price Tracker", network: "SOL", class: "crypto", trending: true, priceUsd: 71.42, pnlPct: 6.18, mcapUsd: 33567400000, balance: 12, apr: "13.37% - 18.79%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "trxw", symbol: "TRXw", name: "TRON Price Tracker", network: "BSC", class: "crypto", trending: false, priceUsd: 0.303589, pnlPct: 1.12, mcapUsd: 26412243000, balance: 3000, apr: "12.5% - 15.52%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "zecw", symbol: "ZECw", name: "Zcash Price Tracker", network: "QOMX", class: "crypto", trending: false, priceUsd: 716.56, pnlPct: -0.75, mcapUsd: 11464960000, balance: 0.8, apr: "14.23% - 18.26%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "hypew", symbol: "HYPEw", name: "Hyperliquid Price Tracker", network: "QOMX", class: "crypto", trending: true, priceUsd: 62.236, pnlPct: 8.44, mcapUsd: 20537880000, balance: 18, apr: "12.04% - 19.12%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "dogew", symbol: "DOGEw", name: "Dogecoin Price Tracker", network: "BSC", class: "crypto", trending: false, priceUsd: 0.057095, pnlPct: -4.15, mcapUsd: 8278775000, balance: 5000, apr: "14.43% - 16.63%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "linkw", symbol: "LINKw", name: "Chainlink Price Tracker", network: "ETH", class: "crypto", trending: false, priceUsd: 9.279, pnlPct: 1.94, mcapUsd: 5660190000, balance: 65, apr: "16.01% - 18.92%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "adaw", symbol: "ADAw", name: "Cardano Price Tracker", network: "ETH", class: "crypto", trending: false, priceUsd: 0.1509, pnlPct: -1.88, mcapUsd: 5432400000, balance: 1400, apr: "14.86% - 19.56%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "nvdaw", symbol: "NVDAw", name: "NVIDIA Stock Price Tracker", network: "QOMX", class: "stock", trending: true, priceUsd: 125.53, pnlPct: 4.62, mcapUsd: 3088038000000, balance: 3.5, apr: "12.83% - 17.89%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "aaplw", symbol: "AAPLw", name: "Apple Stock Price Tracker", network: "QOMX", class: "stock", trending: false, priceUsd: 356.61, pnlPct: 0.91, mcapUsd: 5420472000000, balance: 2.0, apr: "15.48% - 17.69%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "googw", symbol: "GOOGw", name: "Alphabet Stock Price Tracker", network: "QOMX", class: "stock", trending: false, priceUsd: 273.80135, pnlPct: -0.54, mcapUsd: 3367756620000, balance: 1.5, apr: "12.92% - 18.28%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "msftw", symbol: "MSFTw", name: "Microsoft Stock Price Tracker", network: "QOMX", class: "stock", trending: false, priceUsd: 494.091, pnlPct: 1.37, mcapUsd: 3656273400000, balance: 1.0, apr: "14.0% - 16.01%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "amznw", symbol: "AMZNw", name: "Amazon Stock Price Tracker", network: "QOMX", class: "stock", trending: false, priceUsd: 246.775, pnlPct: -2.21, mcapUsd: 2591137500000, balance: 2.5, apr: "12.64% - 18.74%", logo: "https://avatars.githubusercontent.com/u/113091135" },
-      { id: "tslaw", symbol: "TSLAw", name: "Tesla Stock Price Tracker", network: "QOMX", class: "stock", trending: true, priceUsd: 382.88, pnlPct: 5.79, mcapUsd: 1225216000000, balance: 1.8, apr: "16.18% - 19.57%", logo: "https://avatars.githubusercontent.com/u/113091135" }
+    const LOGO_MAIN = "https://avatars.githubusercontent.com/u/344742707?s=400&u=0f7650d8ff7c488797867a1ea945d95f2fe6ead4&v=4";
+
+    // Coin Dataset
+    let COINS = [
+      { id: "dmxc", rank: 1, symbol: "DMXC", name: "DimeX Chain", network: "dimex", category: "native", trending: true, priceUsd: 1.45, change24h: 12.40, vol24h: "$4.20M", mcapUsd: 145000000, liquidityUsd: 8900000, high24h: 1.52, low24h: 1.26, supply: "100.00M DMXC", contract: "0x0000000000000000000000000000000000001723", balance: 2500, apr: "22.00%", logo: LOGO_MAIN },
+      { id: "usdc", rank: 2, symbol: "USDC", name: "USD Coin", network: "qomx", category: "tokens", trending: true, priceUsd: 1.00, change24h: 0.01, vol24h: "$1.41B", mcapUsd: 38500000000, liquidityUsd: 420000000, high24h: 1.002, low24h: 0.998, supply: "38.50B USDC", contract: "0x3b5BD179CA6Aab4DAF0f842829776843ABe6e727", balance: 1250, apr: "26.87%", logo: LOGO_MAIN },
+      { id: "btc", rank: 3, symbol: "BTCw", name: "Bitcoin Swap", network: "qomx", category: "native", trending: true, priceUsd: 60551.14, change24h: 3.85, vol24h: "$1.85B", mcapUsd: 1211022781791, liquidityUsd: 95000000, high24h: 61800, low24h: 58900, supply: "19.98M BTCw", contract: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", balance: 0.15, apr: "20.00%", logo: LOGO_MAIN },
+      { id: "eth", rank: 4, symbol: "ETHw", name: "Ethereum Price Tracker", network: "ethereum", category: "native", trending: true, priceUsd: 1703.54, change24h: -1.42, vol24h: "$740.12M", mcapUsd: 204424800000, liquidityUsd: 64000000, high24h: 1745.0, low24h: 1680.0, supply: "120.00M ETHw", contract: "0xd8fA8202ecC699687182109084B9ECBb44025759", balance: 1.25, apr: "20.00%", logo: LOGO_MAIN },
+      { id: "bnb", rank: 5, symbol: "BNBw", name: "BNB Price Tracker", network: "bsc", category: "native", trending: true, priceUsd: 554.475, change24h: 2.15, vol24h: "$410.50M", mcapUsd: 80398875000, liquidityUsd: 38000000, high24h: 562.0, low24h: 541.0, supply: "145.00M BNBw", contract: "0x7777D957b16DB51bC9BbeE88F4170D6D2D27b1Fa", balance: 4.0, apr: "16.76%", logo: LOGO_MAIN },
+      { id: "sol", rank: 6, symbol: "SOLw", name: "Solana Price Tracker", network: "solana", category: "native", trending: true, priceUsd: 71.42, change24h: 6.18, vol24h: "$512.30M", mcapUsd: 33567400000, liquidityUsd: 29500000, high24h: 73.1, low24h: 66.8, supply: "470.00M SOLw", contract: "0x29743B98b4EB3A4600ba39749e8686C98e2d5d59", balance: 15.0, apr: "18.79%", logo: LOGO_MAIN },
+      { id: "nvda", rank: 7, symbol: "NVDAw", name: "NVIDIA Stock Price Tracker", network: "qomx", category: "stocks", trending: true, priceUsd: 125.53, change24h: 4.62, vol24h: "$98.40M", mcapUsd: 3088038000000, liquidityUsd: 14200000, high24h: 127.9, low24h: 119.5, supply: "24.60B NVDAw", contract: "0x55CcA41AF32aCB3b7610777299747d247226150B", balance: 5.0, apr: "17.89%", logo: LOGO_MAIN },
+      { id: "aapl", rank: 8, symbol: "AAPLw", name: "Apple Stock Price Tracker", network: "qomx", category: "stocks", trending: false, priceUsd: 356.61, change24h: 0.91, vol24h: "$64.10M", mcapUsd: 5420472000000, liquidityUsd: 11800000, high24h: 359.0, low24h: 351.2, supply: "15.20B AAPLw", contract: "0x08AbfC147fd0Ec165919A8B6F0926046Fd239f1f", balance: 2.0, apr: "17.69%", logo: LOGO_MAIN },
+      { id: "tsla", rank: 9, symbol: "TSLAw", name: "Tesla Stock Price Tracker", network: "qomx", category: "stocks", trending: true, priceUsd: 382.88, change24h: 5.79, vol24h: "$112.75M", mcapUsd: 1225216000000, liquidityUsd: 16400000, high24h: 389.4, low24h: 360.0, supply: "3.20B TSLAw", contract: "0x5DAa7BfB9Cb2ae4FC3A8f9717bBeB374D56c221B", balance: 3.0, apr: "19.57%", logo: LOGO_MAIN },
+      { id: "link", rank: 10, symbol: "LINKw", name: "Chainlink Price Tracker", network: "arbitrum", category: "tokens", trending: false, priceUsd: 9.279, change24h: -2.14, vol24h: "$88.90M", mcapUsd: 5660190000, liquidityUsd: 7800000, high24h: 9.61, low24h: 9.12, supply: "610.00M LINKw", contract: "0x7C88Ea96340d17CE0E1450cd20c55FE9d8c45bb1", balance: 120, apr: "18.92%", logo: LOGO_MAIN },
+      { id: "pol", rank: 11, symbol: "NOMO", name: "Nomo Network", network: "polygon", category: "tokens", trending: true, priceUsd: 0.0142, change24h: 8.35, vol24h: "$19.60M", mcapUsd: 89950000, liquidityUsd: 248560, high24h: 0.01682, low24h: 0.00593, supply: "6.33B NOMO", contract: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f", balance: 4500, apr: "15.40%", logo: LOGO_MAIN }
     ];
 
-    // Expand up to 75 coins when "All (Up to 75)" is selected or total pool is needed
-    function buildFullPool(targetCount = 75) {
-      const pool = [...BASE_COINS];
-      const extraNets = ["DIMEX", "QOMX", "BSC", "ETH", "SOL"];
-      let idx = 1;
-      while (pool.length < targetCount) {
-        const base = BASE_COINS[idx % BASE_COINS.length];
-        const net = extraNets[idx % extraNets.length];
-        const factor = 0.85 + ((idx * 7) % 35) / 100;
-        const pnl = Number((((idx % 11) - 5) * 1.35).toFixed(2));
-        pool.push({
-          ...base,
-          id: `${base.id}_${idx}`,
-          symbol: `${base.symbol}${idx}`,
-          name: `${base.name} Pool #${idx}`,
-          network: net,
-          priceUsd: Number((base.priceUsd * factor).toFixed(6)),
-          pnlPct: pnl,
-          mcapUsd: Math.round(base.mcapUsd * factor),
-          balance: Number(((idx * 13) % 500 + 5).toFixed(2))
-        });
-        idx++;
-      }
-      return pool;
-    }
-
-    let ALL_COINS = buildFullPool(75);
-    let state = {
+    let appState = {
+      view: "home",
       network: "ALL",
-      fn: "trending",
+      category: "trending",
       currency: "USD",
-      selectedId: "dmxc",
-      swapSide: "BUY"
+      selectedCoinId: "dmxc",
+      timeframe: "1D",
+      favorites: new Set(["dmxc", "btc"]),
+      swapSide: "BUY",
+      accountMode: "Internal"
     };
 
-    function formatMoney(usdValue) {
-      const cur = CURRENCIES[state.currency] || CURRENCIES.USD;
-      const val = Number(usdValue || 0) * cur.rate;
-      const abs = Math.abs(val);
-      const decimals = abs >= 1000 ? 2 : abs >= 1 ? 2 : 5;
-      return `${cur.symbol}${val.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
+    function fmtPrice(usd) {
+      const c = CURRENCIES[appState.currency] || CURRENCIES.USD;
+      const v = Number(usd || 0) * c.rate;
+      const abs = Math.abs(v);
+      const dec = abs >= 1000 ? 2 : abs >= 1 ? 2 : abs >= 0.01 ? 4 : 6;
+      return `${c.symbol}${v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec })}`;
     }
 
-    function selectNetwork(net) {
-      state.network = net;
-      document.querySelectorAll(".net-btn").forEach(b => b.classList.toggle("active", b.dataset.net === net));
-      renderMarkets();
+    function fmtCompact(usd) {
+      const c = CURRENCIES[appState.currency] || CURRENCIES.USD;
+      const v = Number(usd || 0) * c.rate;
+      return `${c.symbol}${v.toLocaleString("en-US", { notation: "compact", maximumFractionDigits: 2 })}`;
     }
 
-    function selectFunction(fnKey) {
-      state.fn = fnKey;
-      document.querySelectorAll(".fn-btn").forEach(b => b.classList.toggle("active", b.dataset.fn === fnKey));
-      fetchFunctionEndpoint(fnKey);
-      renderMarkets();
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      document.getElementById("themeBtn").textContent = isDark ? "☀ Light mode" : "☾ Dark mode";
+      if (appState.view === "detail") renderCoinDetail();
     }
 
-    async function fetchFunctionEndpoint(fnKey) {
-      const urlMap = {
-        trending: API_ENDPOINTS.trending,
-        native: API_ENDPOINTS.native,
-        stocks: API_ENDPOINTS.stocks,
-        pnl: API_ENDPOINTS.pnlWatch,
-        all: API_ENDPOINTS.allMarkets
-      };
-      const url = urlMap[fnKey];
-      if (!url) return;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length) {
-          ALL_COINS = data.slice(0, 75);
-          renderMarkets();
-        }
-      } catch (e) {
-        console.warn("API fallback active:", e);
-      }
+    function changeCurrency(code) {
+      appState.currency = code;
+      renderTicker();
+      renderCoinList();
+      if (appState.view === "detail") renderCoinDetail();
+      if (appState.view === "wallet") renderWallet();
+      if (appState.view === "earn") renderEarn();
+      calcModalSwap();
     }
 
-    function changeCurrency(curCode) {
-      state.currency = curCode;
-      renderMarkets();
-      renderStage();
-      calculateSwap();
-    }
-
-    function getFilteredCoins() {
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
-      let list = ALL_COINS.filter(c => {
-        const netOk = state.network === "ALL" || c.network === state.network;
-        const searchOk = !q || c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q) || c.network.toLowerCase().includes(q);
-        return netOk && searchOk;
+    function showView(viewName) {
+      appState.view = viewName;
+      ["home", "markets", "detail", "wallet", "earn"].forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.toggle("hidden", v !== viewName);
       });
 
-      if (state.fn === "trending") list = list.filter(c => c.trending);
-      if (state.fn === "native") list = list.filter(c => c.class === "native");
-      if (state.fn === "stocks") list = list.filter(c => c.class === "stock");
-      if (state.fn === "pnl") list = [...list].sort((a, b) => Math.abs(b.pnlPct) - Math.abs(a.pnlPct));
-
-      return list.slice(0, 75);
+      document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("active"));
+      if (viewName === "markets") {
+        document.getElementById("nav-markets").classList.add("active");
+        renderCoinList();
+      } else if (viewName === "wallet") {
+        document.getElementById("nav-wallet").classList.add("active");
+        renderWallet();
+      } else if (viewName === "earn") {
+        document.getElementById("nav-earn").classList.add("active");
+        renderEarn();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function renderMarkets() {
-      const list = getFilteredCoins();
-      const tbody = document.getElementById("marketBody");
-      document.getElementById("marketCount").textContent = `Showing ${list.length} coins (Max 75 / page)`;
+    function initNetworks() {
+      const sel = document.getElementById("networkSelect");
+      sel.innerHTML = NETWORKS.map(n => `<option value="${n.id}">${n.name}</option>`).join("");
+      sel.value = appState.network;
+    }
 
+    function changeNetwork(netId) {
+      appState.network = netId;
+      renderCoinList();
+    }
+
+    function changeCategory(cat) {
+      appState.category = cat;
+      document.querySelectorAll(".cat-tab").forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
+      renderCoinList();
+    }
+
+    function toggleFav(e, id) {
+      e.stopPropagation();
+      if (appState.favorites.has(id)) appState.favorites.delete(id);
+      else appState.favorites.add(id);
+      renderCoinList();
+    }
+
+    function renderTicker() {
+      const pairs = ["btc", "eth", "bnb", "dmxc"];
+      const html = pairs.map(id => {
+        const c = COINS.find(x => x.id === id);
+        if (!c) return "";
+        return `<div class="ticker-item" onclick="openCoinDetail('${c.id}')">
+          <span>${c.symbol}/USDC</span>
+          <span class="muted">${fmtPrice(c.priceUsd)}</span>
+        </div>`;
+      }).join("");
+      document.getElementById("tickerInner").innerHTML = html;
+    }
+
+    function renderCoinList() {
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      let list = COINS.filter(c => {
+        const netMatch = appState.network === "ALL" || c.network === appState.network;
+        const qMatch = !q ||
+          c.name.toLowerCase().includes(q) ||
+          c.symbol.toLowerCase().includes(q) ||
+          c.contract.toLowerCase().includes(q);
+        return netMatch && qMatch;
+      });
+
+      if (appState.category === "trending") list = list.filter(c => c.trending);
+      else if (appState.category === "native") list = list.filter(c => c.category === "native");
+      else if (appState.category === "stocks") list = list.filter(c => c.category === "stocks");
+      else if (appState.category === "tokens") list = list.filter(c => c.category === "tokens");
+      else if (appState.category === "top") list = [...list].sort((a, b) => b.mcapUsd - a.mcapUsd);
+
+      const container = document.getElementById("coinList");
       if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">No matching coins found.</td></tr>`;
+        container.innerHTML = `<div style="padding:28px;text-align:center;color:var(--muted);">No coins found for this network/filter.</div>`;
         return;
       }
 
-      tbody.innerHTML = list.map((c, i) => {
-        const isPos = c.pnlPct >= 0;
-        const balUsd = c.balance * c.priceUsd;
+      container.innerHTML = list.map((c, idx) => {
+        const isPos = c.change24h >= 0;
+        const starred = appState.favorites.has(c.id);
         return `
-          <tr class="coin-row ${c.id === state.selectedId ? "selected" : ""}" onclick="selectCoin('${c.id}')">
-            <td>${i + 1}</td>
-            <td>
-              <div class="t-coin">
-                <img src="${c.logo}" alt="${c.symbol}" />
-                <div>
-                  <div>${c.symbol}</div>
-                  <small style="color:var(--muted);font-weight:400;">${c.name}</small>
-                </div>
+          <div class="coin-row" onclick="openCoinDetail('${c.id}')">
+            <div class="coin-row-left">
+              <button class="star-btn" onclick="toggleFav(event, '${c.id}')">${starred ? "★" : "☆"}</button>
+              <div class="coin-rank">${idx + 1}</div>
+              <img class="coin-avatar" src="${c.logo}" alt="${c.symbol}" />
+              <div>
+                <div class="coin-sym">${c.symbol}</div>
+                <div class="coin-name">${c.name}</div>
+                <div class="coin-vol">24H Vol: ${c.vol24h}</div>
               </div>
-            </td>
-            <td><span class="net-btn" style="padding:3px 9px;font-size:11px;">${c.network}</span></td>
-            <td><strong>${formatMoney(c.priceUsd)}</strong></td>
-            <td><span class="pnl-tag ${isPos ? "pos" : "neg"}">${isPos ? "+" : ""}${c.pnlPct}%</span></td>
-            <td>${formatMoney(c.mcapUsd)}</td>
-            <td>
-              <div><strong>${c.balance} ${c.symbol}</strong></div>
-              <small style="color:var(--muted);">${formatMoney(balUsd)}</small>
-            </td>
-            <td onclick="event.stopPropagation()">
-              <div class="mini-btns">
-                <button class="mini-buy" onclick="selectCoin('${c.id}'); openSwap('BUY');">Buy</button>
-                <button class="mini-sell" onclick="selectCoin('${c.id}'); openSwap('SELL');">Sell</button>
-              </div>
-            </td>
-          </tr>
+            </div>
+            <div class="coin-row-right">
+              <div class="coin-price">${fmtPrice(c.priceUsd)}</div>
+              <div class="${isPos ? "chg-pos" : "chg-neg"}">${isPos ? "+" : ""}${c.change24h.toFixed(2)}%</div>
+            </div>
+          </div>
         `;
       }).join("");
     }
 
-    function selectCoin(id) {
-      state.selectedId = id;
-      renderMarkets();
-      renderStage();
-      populateSwapSelectors();
-      calculateSwap();
+    // Coin Detail View (only shown when user clicks a coin)
+    function openCoinDetail(id) {
+      appState.selectedCoinId = id;
+      showView("detail");
+      renderCoinDetail();
     }
 
-    function renderStage() {
-      const coin = ALL_COINS.find(c => c.id === state.selectedId) || ALL_COINS[0];
-      if (!coin) return;
-
-      document.getElementById("heroLogo").src = coin.logo;
-      document.getElementById("heroName").textContent = `${coin.name} (${coin.symbol})`;
-      document.getElementById("heroMeta").textContent = `Network: ${coin.network} • Category: ${coin.class.toUpperCase()}`;
-      document.getElementById("heroPrice").textContent = formatMoney(coin.priceUsd);
-
-      const isPos = coin.pnlPct >= 0;
-      const pnlEl = document.getElementById("heroPnl");
-      pnlEl.className = `pnl-tag ${isPos ? "pos" : "neg"}`;
-      pnlEl.textContent = `${isPos ? "+" : ""}${coin.pnlPct}% (24h P&L)`;
-
-      document.getElementById("detailRate").textContent = formatMoney(coin.priceUsd);
-      document.getElementById("detailMcap").textContent = formatMoney(coin.mcapUsd);
-      document.getElementById("detailBalance").textContent = `${coin.balance} ${coin.symbol} (${formatMoney(coin.balance * coin.priceUsd)})`;
-      document.getElementById("detailPnl").textContent = `${isPos ? "Profit" : "Loss"} ${isPos ? "+" : ""}${coin.pnlPct}%`;
-      document.getElementById("detailNetClass").textContent = `${coin.network} / ${coin.class}`;
-      document.getElementById("detailApr").textContent = coin.apr || "Dynamic";
-
-      drawChart(coin);
+    function setTimeframe(tf) {
+      appState.timeframe = tf;
+      renderCoinDetail();
     }
 
-    function drawChart(coin) {
-      const canvas = document.getElementById("priceChart");
+    function renderCoinDetail() {
+      const c = COINS.find(x => x.id === appState.selectedCoinId) || COINS[0];
+      const isPos = c.change24h >= 0;
+      const tfs = ["1H", "1D", "1W", "1M"];
+
+      document.getElementById("view-detail").innerHTML = `
+        <button class="back-link" onclick="showView('markets')">← Back to Markets</button>
+
+        <div class="detail-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <img class="coin-avatar" style="width:48px;height:48px;" src="${c.logo}" alt="${c.symbol}" />
+            <div>
+              <h2 style="font-size:22px;font-weight:800;">${c.name} <span style="color:var(--muted);font-size:16px;">${c.symbol}</span></h2>
+              <small style="color:var(--muted);">Network: ${c.network.toUpperCase()} • Earn APR: ${c.apr}</small>
+            </div>
+          </div>
+          <button class="star-btn" style="font-size:24px;" onclick="toggleFav(event, '${c.id}'); renderCoinDetail();">
+            ${appState.favorites.has(c.id) ? "★" : "☆"}
+          </button>
+        </div>
+
+        <div class="detail-price">${fmtPrice(c.priceUsd)}</div>
+        <div class="${isPos ? "chg-pos" : "chg-neg"}" style="font-size:15px;margin-bottom:14px;">
+          ${isPos ? "+" : ""}${c.change24h.toFixed(2)}% (${appState.timeframe})
+        </div>
+
+        <div class="chart-card">
+          <canvas id="detailChart" class="detail-canvas" width="900" height="240"></canvas>
+        </div>
+
+        <div class="tf-row">
+          ${tfs.map(tf => `<button class="tf-btn ${appState.timeframe === tf ? "active" : ""}" onclick="setTimeframe('${tf}')">${tf}</button>`).join("")}
+        </div>
+
+        <div class="buy-sell-bar">
+          <button class="action-buy" onclick="openSwapModal('BUY', '${c.id}')">Buy ${c.symbol}</button>
+          <button class="action-sell" onclick="openSwapModal('SELL', '${c.id}')">Sell ${c.symbol}</button>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">Balance &amp; Valuation</div>
+          <div class="info-row">
+            <span class="lbl">Your Balance</span>
+            <strong class="val">${c.balance} ${c.symbol}</strong>
+          </div>
+          <div class="info-row">
+            <span class="lbl">Fiat Value</span>
+            <strong class="val">${fmtPrice(c.balance * c.priceUsd)}</strong>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">Market Details</div>
+          <div class="info-row"><span class="lbl">Market Cap</span><strong class="val">${fmtCompact(c.mcapUsd)}</strong></div>
+          <div class="info-row"><span class="lbl">Liquidity</span><strong class="val">${fmtCompact(c.liquidityUsd)}</strong></div>
+          <div class="info-row"><span class="lbl">24h High</span><strong class="val">${fmtPrice(c.high24h)}</strong></div>
+          <div class="info-row"><span class="lbl">24h Low</span><strong class="val">${fmtPrice(c.low24h)}</strong></div>
+          <div class="info-row"><span class="lbl">Circulating Supply</span><strong class="val">${c.supply}</strong></div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">Contract Address &amp; Network</div>
+          <div class="info-row"><span class="lbl">Network</span><strong class="val">${c.network}</strong></div>
+          <div class="info-row">
+            <span class="lbl">Contract Address</span>
+            <button class="copy-btn" onclick="copyText('${c.contract}')">Copy</button>
+          </div>
+          <div style="font-size:13px;color:var(--muted);padding-top:6px;word-break:break-all;">${c.contract}</div>
+        </div>
+      `;
+
+      drawCandles(c);
+    }
+
+    function drawCandles(coin) {
+      const canvas = document.getElementById("detailChart");
+      if (!canvas) return;
       const ctx = canvas.getContext("2d");
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      // Generate deterministic sample series around coin.priceUsd
-      const points = [];
-      let seed = coin.symbol.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-      let current = coin.priceUsd * (1 - coin.pnlPct / 100);
-      for (let i = 0; i < 28; i++) {
-        seed = (seed * 9301 + 49297) % 233280;
-        const rnd = (seed / 233280 - 0.48) * 0.03;
-        current = Math.max(0.00001, current * (1 + rnd));
-        points.push(current);
+      const bars = 36;
+      let seed = coin.symbol.split("").reduce((s, ch) => s + ch.charCodeAt(0), 0) + appState.timeframe.length * 19;
+      let base = coin.priceUsd * 0.94;
+      const candles = [];
+
+      for (let i = 0; i < bars; i++) {
+        seed = (seed * 16807) % 2147483647;
+        const move = ((seed / 2147483647) - 0.48) * 0.04;
+        const open = base;
+        const close = Math.max(0.00001, open * (1 + move));
+        const high = Math.max(open, close) * 1.012;
+        const low = Math.min(open, close) * 0.988;
+        candles.push({ open, close, high, low });
+        base = close;
       }
-      points[points.length - 1] = coin.priceUsd;
+      candles[candles.length - 1].close = coin.priceUsd;
 
-      const minVal = Math.min(...points);
-      const maxVal = Math.max(...points);
-      const span = maxVal - minVal || 1;
-      const padX = 24;
-      const padY = 20;
+      const minV = Math.min(...candles.map(x => x.low));
+      const maxV = Math.max(...candles.map(x => x.high));
+      const span = maxV - minV || 1;
+      const step = (w - 40) / bars;
+      const bodyW = Math.max(5, step * 0.55);
 
-      // Grid lines
-      ctx.strokeStyle = "#1f2b42";
-      ctx.lineWidth = 1;
-      for (let g = 0; g <= 4; g++) {
-        const gy = padY + ((h - padY * 2) / 4) * g;
+      const toY = val => h - 20 - ((val - minV) / span) * (h - 40);
+
+      candles.forEach((k, idx) => {
+        const x = 20 + idx * step + step / 2;
+        const up = k.close >= k.open;
+        const color = up ? "#00b85c" : "#ef4444";
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(padX, gy);
-        ctx.lineTo(w - padX, gy);
+        ctx.moveTo(x, toY(k.high));
+        ctx.lineTo(x, toY(k.low));
         ctx.stroke();
-      }
 
-      // Price curve
-      const strokeColor = coin.pnlPct >= 0 ? "#4ade80" : "#f87171";
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      points.forEach((val, idx) => {
-        const x = padX + ((w - padX * 2) / (points.length - 1)) * idx;
-        const y = h - padY - ((val - minVal) / span) * (h - padY * 2);
-        if (idx === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const y1 = toY(k.open);
+        const y2 = toY(k.close);
+        ctx.fillStyle = color;
+        ctx.fillRect(x - bodyW / 2, Math.min(y1, y2), bodyW, Math.max(3, Math.abs(y2 - y1)));
       });
-      ctx.stroke();
     }
 
-    function openSwap(side) {
-      setSwapSide(side);
-      document.getElementById("swapBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    function copyText(txt) {
+      navigator.clipboard?.writeText(txt);
+      alert("Copied: " + txt);
     }
 
-    function setSwapSide(side) {
-      state.swapSide = side;
-      const isBuy = side === "BUY";
-      document.getElementById("tabBuy").className = `swap-tab ${isBuy ? "buy-active" : ""}`;
-      document.getElementById("tabSell").className = `swap-tab ${!isBuy ? "sell-active" : ""}`;
-      document.getElementById("swapModeBadge").textContent = isBuy ? "BUY MODE" : "SELL MODE";
-      document.getElementById("swapModeBadge").style.color = isBuy ? "#4ade80" : "#f87171";
-      document.getElementById("swapSubmitBtn").style.background = isBuy ? "var(--buy)" : "var(--sell)";
-      document.getElementById("swapSubmitBtn").textContent = isBuy ? "Execute Buy Swap" : "Execute Sell Swap";
-      populateSwapSelectors();
-      calculateSwap();
+    // Swap Modal (opens on Buy / Sell / Trade / Swap)
+    function openQuickSwap(side) {
+      openSwapModal(side, appState.selectedCoinId || "dmxc");
     }
 
-    function populateSwapSelectors() {
-      const selected = ALL_COINS.find(c => c.id === state.selectedId) || ALL_COINS[0];
-      const usdc = ALL_COINS.find(c => c.symbol === "USDC") || ALL_COINS[1];
-      const paySel = document.getElementById("payAsset");
-      const recSel = document.getElementById("receiveAsset");
+    function openSwapModal(side, targetCoinId) {
+      appState.swapSide = side;
+      appState.selectedCoinId = targetCoinId || appState.selectedCoinId;
+      const targetCoin = COINS.find(c => c.id === appState.selectedCoinId) || COINS[0];
+      const usdc = COINS.find(c => c.id === "usdc") || COINS[1];
 
-      const optionsHtml = ALL_COINS.slice(0, 25).map(c =>
-        `<option value="${c.id}">${c.symbol} (${c.network})</option>`
-      ).join("");
+      const paySel = document.getElementById("modalPaySelect");
+      const recSel = document.getElementById("modalRecSelect");
+      const opts = COINS.map(c => `<option value="${c.id}">${c.symbol} (${c.network})</option>`).join("");
+      paySel.innerHTML = opts;
+      recSel.innerHTML = opts;
 
-      paySel.innerHTML = optionsHtml;
-      recSel.innerHTML = optionsHtml;
-
-      if (state.swapSide === "BUY") {
+      if (side === "BUY") {
         paySel.value = usdc.id;
-        recSel.value = selected.id;
+        recSel.value = targetCoin.id;
+        document.getElementById("modalTitle").textContent = `Buy ${targetCoin.symbol}`;
       } else {
-        paySel.value = selected.id;
+        paySel.value = targetCoin.id;
         recSel.value = usdc.id;
+        document.getElementById("modalTitle").textContent = `Sell ${targetCoin.symbol}`;
       }
+
+      setAccountMode(appState.accountMode);
+      calcModalSwap();
+      document.getElementById("swapModal").classList.remove("hidden");
     }
 
-    function flipSwapAssets() {
-      const paySel = document.getElementById("payAsset");
-      const recSel = document.getElementById("receiveAsset");
-      const temp = paySel.value;
+    function closeSwapModal() {
+      document.getElementById("swapModal").classList.add("hidden");
+    }
+
+    function setAccountMode(mode) {
+      appState.accountMode = mode;
+      document.getElementById("modeInternal").classList.toggle("active", mode === "Internal");
+      document.getElementById("modeExternal").classList.toggle("active", mode === "External");
+      document.getElementById("modalStatusText").textContent = `${mode} account selected. Ready to swap.`;
+    }
+
+    function flipModalPair() {
+      const paySel = document.getElementById("modalPaySelect");
+      const recSel = document.getElementById("modalRecSelect");
+      const tmp = paySel.value;
       paySel.value = recSel.value;
-      recSel.value = temp;
-      calculateSwap();
+      recSel.value = tmp;
+      appState.swapSide = appState.swapSide === "BUY" ? "SELL" : "BUY";
+      calcModalSwap();
     }
 
-    function calculateSwap() {
-      const payCoin = ALL_COINS.find(c => c.id === document.getElementById("payAsset").value) || ALL_COINS[0];
-      const recCoin = ALL_COINS.find(c => c.id === document.getElementById("receiveAsset").value) || ALL_COINS[1];
-      const amt = parseFloat(document.getElementById("payAmount").value) || 0;
+    function calcModalSwap() {
+      const payCoin = COINS.find(c => c.id === document.getElementById("modalPaySelect").value) || COINS[0];
+      const recCoin = COINS.find(c => c.id === document.getElementById("modalRecSelect").value) || COINS[1];
+      const amt = parseFloat(document.getElementById("modalPayInput").value) || 0;
 
-      document.getElementById("payBal").textContent = `Balance: ${payCoin.balance} ${payCoin.symbol}`;
-      const rate = payCoin.priceUsd / (recCoin.priceUsd || 1);
-      const outAmt = amt * rate;
+      document.getElementById("modalPayBal").textContent = `${payCoin.balance} ${payCoin.symbol} MAX`;
+      document.getElementById("modalRecBal").textContent = `${recCoin.balance} ${recCoin.symbol}`;
 
-      document.getElementById("receiveAmount").value = outAmt.toFixed(6);
-      document.getElementById("receiveBal").textContent = `1 ${payCoin.symbol} ≈ ${rate.toFixed(6)} ${recCoin.symbol} (${formatMoney(payCoin.priceUsd)})`;
+      const out = amt * (payCoin.priceUsd / (recCoin.priceUsd || 1));
+      document.getElementById("modalRecInput").value = amt > 0 ? out.toFixed(6) : "0";
+      document.getElementById("metaMode").textContent = `${appState.swapSide} • ${payCoin.network}`;
+
+      const btn = document.getElementById("modalExecBtn");
+      btn.className = `swap-exec-btn ${appState.swapSide === "BUY" ? "buy-btn" : "sell-btn"}`;
+      btn.textContent = appState.swapSide === "BUY" ? `Buy ${recCoin.symbol}` : `Sell ${payCoin.symbol}`;
     }
 
-    function executeSwap() {
-      const payCoin = ALL_COINS.find(c => c.id === document.getElementById("payAsset").value);
-      const recCoin = ALL_COINS.find(c => c.id === document.getElementById("receiveAsset").value);
-      const amt = parseFloat(document.getElementById("payAmount").value) || 0;
-      const outAmt = parseFloat(document.getElementById("receiveAmount").value) || 0;
+    function runModalSwap() {
+      const payCoin = COINS.find(c => c.id === document.getElementById("modalPaySelect").value);
+      const recCoin = COINS.find(c => c.id === document.getElementById("modalRecSelect").value);
+      const amt = parseFloat(document.getElementById("modalPayInput").value) || 0;
+      const out = parseFloat(document.getElementById("modalRecInput").value) || 0;
 
-      if (!payCoin || !recCoin || amt <= 0) return;
+      if (!payCoin || !recCoin || amt <= 0) {
+        document.getElementById("modalStatusText").textContent = "Enter a valid amount to swap.";
+        return;
+      }
       if (amt > payCoin.balance) {
-        document.getElementById("swapStatus").textContent = `Insufficient ${payCoin.symbol} balance.`;
+        document.getElementById("modalStatusText").textContent = `Insufficient ${payCoin.symbol} balance.`;
         return;
       }
 
       payCoin.balance = Number((payCoin.balance - amt).toFixed(6));
-      recCoin.balance = Number((recCoin.balance + outAmt).toFixed(6));
-      document.getElementById("swapStatus").textContent =
-        `${state.swapSide} completed: Swapped ${amt} ${payCoin.symbol} → ${outAmt.toFixed(4)} ${recCoin.symbol}.`;
+      recCoin.balance = Number((recCoin.balance + out).toFixed(6));
+      document.getElementById("modalStatusText").textContent =
+        `Swapped ${amt} ${payCoin.symbol} → ${out.toFixed(4)} ${recCoin.symbol} (${appState.accountMode}).`;
 
-      renderMarkets();
-      renderStage();
-      calculateSwap();
+      renderCoinList();
+      if (appState.view === "detail") renderCoinDetail();
+      if (appState.view === "wallet") renderWallet();
+      calcModalSwap();
     }
 
-    // Init
-    selectCoin("dmxc");
+    function renderWallet() {
+      document.getElementById("walletBalances").innerHTML = COINS.map(c => `
+        <div class="info-row">
+          <div>
+            <strong>${c.symbol}</strong> <small style="color:var(--muted);">(${c.name})</small>
+          </div>
+          <div style="text-align:right;">
+            <strong>${c.balance} ${c.symbol}</strong>
+            <div style="font-size:12px;color:var(--muted);">${fmtPrice(c.balance * c.priceUsd)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderEarn() {
+      document.getElementById("earnList").innerHTML = COINS.slice(0, 8).map(c => `
+        <div class="info-row">
+          <div>
+            <strong>${c.name} (${c.symbol})</strong>
+            <div style="font-size:12px;color:var(--muted);">Network: ${c.network.toUpperCase()}</div>
+          </div>
+          <div style="text-align:right;">
+            <strong style="color:var(--green);">Up to ${c.apr} APR</strong>
+            <div style="font-size:12px;color:var(--muted);">Rate: ${fmtPrice(c.priceUsd)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Boot
+    initNetworks();
+    renderTicker();
+    renderCoinList();
+    showView("home");
   </script>
 </body>
 </html>
